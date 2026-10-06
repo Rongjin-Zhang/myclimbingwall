@@ -160,6 +160,20 @@ textarea{width:100%;resize:vertical;min-height:120px;line-height:1.55}
 </style>
 </head>
 <body>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+window.FBCONFIG={
+  apiKey:"AIzaSyC1eJ28L72OxHOCAVxRAcyYF4bMPao9YW4",
+  authDomain:"myclimbingwall-24dd4.firebaseapp.com",
+  projectId:"myclimbingwall-24dd4",
+  storageBucket:"myclimbingwall-24dd4.firebasestorage.app",
+  messagingSenderId:"537370039226",
+  appId:"1:537370039226:web:6d80b2d9f746ac5b1bc383"
+};
+</script>
+
 <header class="top">
   <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 20 Q3 8 16 7 Q29 8 28 20 Q22 27 16 27 Q10 27 4 20Z" fill="#7F4FD8"/><path d="M5 20 Q16 26 27 20 Q22 28 16 28 Q10 28 5 20Z" fill="#4E2C93"/><circle cx="16" cy="16" r="3" fill="#4E2C93"/><circle cx="16" cy="16" r="1.4" fill="#1D1A2B"/></svg>Weekly Send</div>
   <div class="weeklabel" id="weekLabel"></div>
@@ -168,7 +182,7 @@ textarea{width:100%;resize:vertical;min-height:120px;line-height:1.55}
     <button role="tab" aria-selected="false" data-tab="journal">Journal</button>
     <button role="tab" aria-selected="false" data-tab="history">History</button>
   </nav>
-  <div class="tools"><span class="sync" id="sync">Connecting</span><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
+  <div class="tools"><span class="sync" id="sync">Connecting</span><button class="ghost" id="authBtn" hidden>Sign in</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
 </header>
 
 <div class="layout">
@@ -694,11 +708,72 @@ buildCards();renderComposer();render();
   if(db&&id){
     store.db=db;store.coll=db.collection("data/users/"+id);store.mode="cloud";
     store.coll.onSnapshot(snap=>{store.docs=new Map(snap.docs.map(d=>[d.id,clone(d.data())]));if(!store.ready){store.ready=true;listSig="";postSig="";render();checkRecap()}else scheduleRender()},()=>setSync("Sync paused, reload to reconnect"));
+  }else if(window.firebase&&window.FBCONFIG){
+    startFirebase();
   }else{
-    store.mode="local";try{const raw=JSON.parse(localStorage.getItem(LS)||"{}");store.docs=new Map(Object.entries(raw))}catch(e){}
-    store.ready=true;listSig="";postSig="";render();checkRecap();
+    startLocal();
   }
 })();
+
+/* ---------- Firebase sync (GitHub Pages build) ---------- */
+function startLocal(){
+  store.mode="local";
+  try{const raw=JSON.parse(localStorage.getItem(LS)||"{}");store.docs=new Map(Object.entries(raw))}catch(e){}
+  store.ready=true;listSig="";postSig="";render();checkRecap();
+}
+
+function startFirebase(){
+  const authBtn=$("#authBtn");
+  let auth,fdb;
+  try{
+    firebase.initializeApp(window.FBCONFIG);
+    auth=firebase.auth();fdb=firebase.firestore();
+  }catch(e){startLocal();return}
+  let unsub=null;
+  setSync("Checking sign-in");
+  authBtn.hidden=false;authBtn.textContent="Sign in";
+  authBtn.onclick=()=>{
+    if(auth.currentUser){auth.signOut();return}
+    const p=new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(p).catch(err=>{
+      const c=err&&err.code;
+      if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment")auth.signInWithRedirect(p);
+      else if(c!=="auth/popup-closed-by-user"&&c!=="auth/cancelled-popup-request")toast("Couldn't sign in. Please try again.");
+    });
+  };
+  auth.onAuthStateChanged(u=>{
+    if(unsub){unsub();unsub=null}
+    if(!u){store.coll=null;authBtn.textContent="Sign in";startLocal();return}
+    authBtn.textContent="Sign out";
+    const col=fdb.collection("users").doc(u.uid).collection("data");
+    store.coll={doc:id=>({set:d=>col.doc(id).set(JSON.parse(JSON.stringify(d))),delete:()=>col.doc(id).delete()})};
+    store.mode="cloud";setSync("Syncing");
+    let first=true;
+    unsub=col.onSnapshot(async snap=>{
+      const cloud=new Map(snap.docs.map(d=>[d.id,clone(d.data())]));
+      if(first){
+        first=false;
+        if(cloud.size===0){
+          let local={};
+          try{local=JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){}
+          const keys=Object.keys(local);
+          if(keys.length){
+            try{
+              const batch=fdb.batch();
+              keys.forEach(k=>batch.set(col.doc(k),JSON.parse(JSON.stringify(local[k]))));
+              await batch.commit();
+              toast("Moved the progress saved on this device into your account.");
+              return;
+            }catch(e){toast("Couldn't move this device's old progress into your account.")}
+          }
+        }
+      }
+      store.docs=cloud;
+      if(!store.ready){store.ready=true;listSig="";postSig="";render();checkRecap()}else scheduleRender();
+      syncLabel();
+    },()=>setSync("Sync paused, reload to reconnect"));
+  });
+}
 </script>
 </body>
 </html>
