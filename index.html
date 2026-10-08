@@ -160,20 +160,6 @@ textarea{width:100%;resize:vertical;min-height:120px;line-height:1.55}
 </style>
 </head>
 <body>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script>
-window.FBCONFIG={
-  apiKey:"AIzaSyC1eJ28L72OxHOCAVxRAcyYF4bMPao9YW4",
-  authDomain:"myclimbingwall-24dd4.firebaseapp.com",
-  projectId:"myclimbingwall-24dd4",
-  storageBucket:"myclimbingwall-24dd4.firebasestorage.app",
-  messagingSenderId:"537370039226",
-  appId:"1:537370039226:web:6d80b2d9f746ac5b1bc383"
-};
-</script>
-
 <header class="top">
   <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 20 Q3 8 16 7 Q29 8 28 20 Q22 27 16 27 Q10 27 4 20Z" fill="#7F4FD8"/><path d="M5 20 Q16 26 27 20 Q22 28 16 28 Q10 28 5 20Z" fill="#4E2C93"/><circle cx="16" cy="16" r="3" fill="#4E2C93"/><circle cx="16" cy="16" r="1.4" fill="#1D1A2B"/></svg>Weekly Send</div>
   <div class="weeklabel" id="weekLabel"></div>
@@ -182,7 +168,7 @@ window.FBCONFIG={
     <button role="tab" aria-selected="false" data-tab="journal">Journal</button>
     <button role="tab" aria-selected="false" data-tab="history">History</button>
   </nav>
-  <div class="tools"><span class="sync" id="sync">Connecting</span><button class="ghost" id="authBtn" hidden>Sign in</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
+  <div class="tools"><span class="sync" id="sync">Connecting</span><button id="authBtn" hidden>Sign in to sync</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
 </header>
 
 <div class="layout">
@@ -238,6 +224,9 @@ window.FBCONFIG={
 <datalist id="topics"></datalist>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
 "use strict";
@@ -620,7 +609,7 @@ function drawCard(C,headline){
 async function shareModal(C,title,sub,big){
   try{await document.fonts.ready}catch(e){}
   const cv=drawCard(C,title);const url=cv.toDataURL("image/png");
-  openModal(`<div class="celebrate">${big?`<div class="lvl-sub">${esc(sub)}</div><div class="big">${esc(title)}</div>`:`<h2>${esc(title)}</h2>`}<img src="${url}" alt="Share card with your climbing grade and totals"><div class="row" style="justify-content:center">${caps.downloads?`<button class="primary" id="saveImg">Save image</button>`:`<span class="count">Long-press or right-click the image to save it.</span>`}<button data-close>Close</button></div></div>`);
+  openModal(`<div class="celebrate">${big?`<div class="lvl-sub">${esc(sub)}</div><div class="big">${esc(title)}</div>`:`<h2>${esc(title)}</h2>`}<img src="${url}" alt="Share card with your climbing grade and totals"><div class="row" style="justify-content:center">${caps.downloads?`<button class="primary" id="saveImg">Save image</button>`:`<a href="${url}" download="weekly-send-V${C.grade}.png" style="background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:8px 14px;font-weight:700;text-decoration:none">Save image</a>`}<button data-close>Close</button></div></div>`);
   const sb=$("#saveImg");if(sb)sb.onclick=()=>cv.toBlob(async blob=>{try{await caps.downloads.save({filename:`weekly-send-V${C.grade}.png`,data:blob})}catch(e){if(e&&e.code!=="declined")toast("Couldn't save the image. Long-press it instead.")}},"image/png");
 }
 function celebrate(C,gradeUp){
@@ -696,6 +685,38 @@ $("#jText").addEventListener("input",()=>{if(J.prevText!=null){J.prevText=null;r
 window.matchMedia("(max-width:760px)").addEventListener("change",()=>{wallState.sig="";scheduleRender()});
 setInterval(()=>{const C=compute();if(C.cur!==(window.__cw||C.cur)){scheduleRender();checkRecap()}window.__cw=C.cur},60000);
 
+/* ---------- firebase sync ---------- */
+const FB_CONFIG={apiKey:"AIzaSyC1eJ28L72OxHOCAVxRAcyYF4bMPao9YW4",authDomain:"myclimbingwall-24dd4.firebaseapp.com",databaseURL:"https://myclimbingwall-24dd4-default-rtdb.firebaseio.com",projectId:"myclimbingwall-24dd4",storageBucket:"myclimbingwall-24dd4.firebasestorage.app",messagingSenderId:"537370039226",appId:"1:537370039226:web:6d80b2d9f746ac5b1bc383"};
+let fbRef=null;
+function loadLocalDocs(){try{return new Map(Object.entries(JSON.parse(localStorage.getItem(LS)||"{}")))}catch(e){return new Map()}}
+function initFirebase(){
+  try{firebase.initializeApp(FB_CONFIG)}catch(e){return}
+  const auth=firebase.auth();const btn=$("#authBtn");btn.hidden=false;
+  auth.getRedirectResult().catch(()=>{});
+  btn.onclick=async()=>{
+    if(auth.currentUser){if(confirm("Sign out on this device? Your progress stays saved in your account."))auth.signOut();return}
+    const p=new firebase.auth.GoogleAuthProvider();
+    try{await auth.signInWithPopup(p)}catch(e){const c=e&&e.code;if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment")auth.signInWithRedirect(p);else if(c!=="auth/popup-closed-by-user"&&c!=="auth/cancelled-popup-request")toast("Sign-in didn't work. Try again.")}
+  };
+  auth.onAuthStateChanged(user=>{
+    if(fbRef){fbRef.off();fbRef=null}
+    if(!user){store.coll=null;store.mode="local";store.docs=loadLocalDocs();btn.textContent="Sign in to sync";btn.title="";listSig="";postSig="";scheduleRender();return}
+    btn.textContent="Sign out";btn.title=user.email||"";
+    const ref=firebase.database().ref("users/"+user.uid+"/docs");fbRef=ref;
+    store.coll={doc:id=>({set:d=>ref.child(id).set(JSON.stringify(d)),delete:()=>ref.child(id).remove()})};
+    store.mode="cloud";setSync("Connecting");let first=true;
+    ref.on("value",snap=>{
+      const m=new Map();snap.forEach(c=>{try{m.set(c.key,JSON.parse(c.val()))}catch(e){}});
+      if(first){first=false;const local=loadLocalDocs();const up={};
+        for(const[id,d]of local){if(!m.has(id)){up[id]=JSON.stringify(d);m.set(id,d)}}
+        if(Object.keys(up).length)ref.update(up).then(()=>{try{localStorage.removeItem(LS)}catch(e){}toast("Moved your saved progress into your account")}).catch(()=>toast("Couldn't move your saved progress. Check your connection."));
+        else{try{localStorage.removeItem(LS)}catch(e){}}
+      }
+      store.docs=m;listSig="";postSig="";scheduleRender();
+    },()=>setSync("Sync error, sign in again"));
+  });
+}
+
 /* ---------- boot ---------- */
 buildCards();renderComposer();render();
 (async function boot(){
@@ -708,72 +729,12 @@ buildCards();renderComposer();render();
   if(db&&id){
     store.db=db;store.coll=db.collection("data/users/"+id);store.mode="cloud";
     store.coll.onSnapshot(snap=>{store.docs=new Map(snap.docs.map(d=>[d.id,clone(d.data())]));if(!store.ready){store.ready=true;listSig="";postSig="";render();checkRecap()}else scheduleRender()},()=>setSync("Sync paused, reload to reconnect"));
-  }else if(window.firebase&&window.FBCONFIG){
-    startFirebase();
   }else{
-    startLocal();
+    store.mode="local";try{const raw=JSON.parse(localStorage.getItem(LS)||"{}");store.docs=new Map(Object.entries(raw))}catch(e){}
+    store.ready=true;listSig="";postSig="";render();checkRecap();
+    if(window.firebase)initFirebase();
   }
 })();
-
-/* ---------- Firebase sync (GitHub Pages build) ---------- */
-function startLocal(){
-  store.mode="local";
-  try{const raw=JSON.parse(localStorage.getItem(LS)||"{}");store.docs=new Map(Object.entries(raw))}catch(e){}
-  store.ready=true;listSig="";postSig="";render();checkRecap();
-}
-
-function startFirebase(){
-  const authBtn=$("#authBtn");
-  let auth,fdb;
-  try{
-    firebase.initializeApp(window.FBCONFIG);
-    auth=firebase.auth();fdb=firebase.firestore();
-  }catch(e){startLocal();return}
-  let unsub=null;
-  setSync("Checking sign-in");
-  authBtn.hidden=false;authBtn.textContent="Sign in";
-  authBtn.onclick=()=>{
-    if(auth.currentUser){auth.signOut();return}
-    const p=new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(p).catch(err=>{
-      const c=err&&err.code;
-      if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment")auth.signInWithRedirect(p);
-      else if(c!=="auth/popup-closed-by-user"&&c!=="auth/cancelled-popup-request")toast("Couldn't sign in. Please try again.");
-    });
-  };
-  auth.onAuthStateChanged(u=>{
-    if(unsub){unsub();unsub=null}
-    if(!u){store.coll=null;authBtn.textContent="Sign in";startLocal();return}
-    authBtn.textContent="Sign out";
-    const col=fdb.collection("users").doc(u.uid).collection("data");
-    store.coll={doc:id=>({set:d=>col.doc(id).set(JSON.parse(JSON.stringify(d))),delete:()=>col.doc(id).delete()})};
-    store.mode="cloud";setSync("Syncing");
-    let first=true;
-    unsub=col.onSnapshot(async snap=>{
-      const cloud=new Map(snap.docs.map(d=>[d.id,clone(d.data())]));
-      if(first){
-        first=false;
-        if(cloud.size===0){
-          let local={};
-          try{local=JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){}
-          const keys=Object.keys(local);
-          if(keys.length){
-            try{
-              const batch=fdb.batch();
-              keys.forEach(k=>batch.set(col.doc(k),JSON.parse(JSON.stringify(local[k]))));
-              await batch.commit();
-              toast("Moved the progress saved on this device into your account.");
-              return;
-            }catch(e){toast("Couldn't move this device's old progress into your account.")}
-          }
-        }
-      }
-      store.docs=cloud;
-      if(!store.ready){store.ready=true;listSig="";postSig="";render();checkRecap()}else scheduleRender();
-      syncLabel();
-    },()=>setSync("Sync paused, reload to reconnect"));
-  });
-}
 </script>
 </body>
 </html>
