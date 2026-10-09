@@ -196,6 +196,18 @@ mark{background:var(--pink-soft);color:inherit;border-radius:4px;padding:0 2px}
 .theme-card.on{border-color:var(--pink-deep);box-shadow:0 0 0 2px var(--pink-deep)}
 .theme-sw{height:56px;border-radius:12px;display:flex;align-items:flex-end;gap:5px;padding:8px}
 .theme-sw i{width:16px;height:16px;border-radius:50%;border:2px solid #fff;display:block}
+html.night{color-scheme:dark}
+html.night .sheet,html.night .wall-tag,html.night .banner>div,html.night .tick,html.night input:focus,html.night textarea:focus{background:var(--surface)}
+html.night .trow.done{background:linear-gradient(90deg,var(--pink-pale),var(--surface))}
+html.night .wallbox,html.night .closet-btn,html.night .sw,html.night .accdot{border-color:var(--surface2)}
+html.night .tabs{background:rgba(255,255,255,.06)}
+html.night .empty{background:rgba(255,255,255,.03)}
+html.night .overlay{background:rgba(0,0,0,.55)}
+html.night .sheet{box-shadow:0 20px 60px rgba(0,0,0,.5)}
+html.night .toast{color:var(--surface)}
+html.night .toast button{color:var(--surface);background:rgba(0,0,0,.08)}
+html.night .pill.bad{background:rgba(255,255,255,.07);color:var(--muted)}
+html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night button.primary{color:#fff}
 .closet .preview{background:linear-gradient(180deg,var(--g1),var(--g3));border-radius:20px;display:flex;align-items:center;justify-content:center;align-self:start;position:sticky;top:0}
 .closet h3{font-family:var(--body);font-size:12.5px;font-weight:800;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .sw{width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--line);padding:0;min-height:0}
@@ -238,7 +250,7 @@ mark{background:var(--pink-soft);color:inherit;border-radius:4px;padding:0 2px}
     <button role="tab" aria-selected="false" data-tab="notes">Notes</button>
     <button role="tab" aria-selected="false" data-tab="history">History</button>
   </nav>
-  <div class="tools"><span class="sync" id="sync">Loading</span><button id="authBtn" hidden>Sign in</button><button class="ghost" id="themeBtn" aria-label="Change theme" title="Theme">🎨</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
+  <div class="tools"><span class="sync" id="sync">Loading</span><button id="authBtn" hidden>Sign in</button><button class="ghost" id="nightBtn" aria-label="Night mode" title="Night mode">🌙</button><button class="ghost" id="themeBtn" aria-label="Change theme" title="Theme">🎨</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
 </header>
 <div class="banner" id="signBanner" hidden><div>🌸 Sign in with Google to sync your climb between your phone and computer. <button class="primary" id="bannerSignIn">Sign in</button></div></div>
 
@@ -910,7 +922,15 @@ const THEMES={
  sky:{name:"Sky",ink:"#28405A",muted:"#7690AD",line:"#D3E3F4",a:"#6FA8E6",ad:"#4683C9",as:"#D5E7FA",ap:"#F4F9FE",s2:"#EDF5FD",g:["#F7FBFF","#E8F2FD","#D7E8FA"],b:["#8DBDF0","#5592D6"],bar:"#BCD8F5",sh:"70,131,201",pb:"#E1EDFA",w:["#F7FBFF","#E9F2FC","#D9E8F8"],wd:"#BFD3EA",wl:"#D3E3F4"},
  monet:{name:"Monet",ink:"#34454F",muted:"#7E8F93",line:"#D9E2DF",a:"#8FB3C9",ad:"#5F8AA6",as:"#DCE8E4",ap:"#F6F9F7",s2:"#EEF3F1",g:["#F8FAF6","#E9F0EE","#E4E1EE"],b:["#A9C6D6","#7C9FB8"],bar:"#C9D9C4",sh:"95,138,166",pb:"#E3EAE7",w:["#F8FAF6","#EAF1EC","#E3E2EE"],wd:"#C3CEC9",wl:"#D9E2DF"}
 };
-function applyTheme(k){const t=THEMES[k]||THEMES.pink;const st=document.documentElement.style;const v={"--ink":t.ink,"--muted":t.muted,"--line":t.line,"--pink":t.a,"--pink-deep":t.ad,"--pink-soft":t.as,"--pink-pale":t.ap,"--surface2":t.s2,"--g1":t.g[0],"--g2":t.g[1],"--g3":t.g[2],"--btn1":t.b[0],"--btn2":t.b[1],"--bar1":t.bar,"--sh":t.sh,"--pb":t.pb,"--w1":t.w[0],"--w2":t.w[1],"--w3":t.w[2],"--wd":t.wd,"--wl":t.wl};for(const n in v)st.setProperty(n,v[n])}
+function applyThemeDay(k){const t=THEMES[k]||THEMES.pink;const st=document.documentElement.style;const v={"--ink":t.ink,"--muted":t.muted,"--line":t.line,"--pink":t.a,"--pink-deep":t.ad,"--pink-soft":t.as,"--pink-pale":t.ap,"--surface2":t.s2,"--g1":t.g[0],"--g2":t.g[1],"--g3":t.g[2],"--btn1":t.b[0],"--btn2":t.b[1],"--bar1":t.bar,"--sh":t.sh,"--pb":t.pb,"--w1":t.w[0],"--w2":t.w[1],"--w3":t.w[2],"--wd":t.wd,"--wl":t.wl};for(const n in v)st.setProperty(n,v[n])}
+const NIGHT={pink:["#1A1418","#241A20","#2A2027","#33262F","#3D2E38"],lavender:["#16141D","#1E1A28","#25212F","#2D2839","#3A3448"],mint:["#121A18","#18231F","#1E2A26","#25332E","#2F403A"],peach:["#1A1512","#241C17","#2B221C","#342922","#43352C"],sky:["#12161D","#182029","#1E2631","#252F3B","#2F3B4A"],monet:["#14181A","#1B2124","#21282B","#283134","#333E42"]};
+let NIGHT_ON=false;
+function mixHex(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const x=p(a),y=p(b);return"#"+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,"0")).join("")}
+function applyTheme(k){applyThemeDay(k);const de=document.documentElement;de.classList.toggle("night",NIGHT_ON);const st=de.style;
+  if(!NIGHT_ON){st.removeProperty("--surface");return}
+  const t=THEMES[k]||THEMES.pink,n=NIGHT[k]||NIGHT.pink;
+  const v={"--surface":n[2],"--surface2":n[3],"--line":n[4],"--pb":n[4],"--ink":"#F2EAF0","--muted":"#B4A7AF","--pink-pale":n[3],"--pink-soft":mixHex(n[2],t.a,.35),"--g1":n[0],"--g2":n[1],"--g3":mixHex(n[1],t.a,.14),"--w1":n[1],"--w2":n[2],"--w3":mixHex(n[2],t.a,.1),"--wd":n[4],"--wl":n[4],"--bar1":mixHex(n[2],t.a,.5),"--sh":"0,0,0"};
+  for(const x in v)st.setProperty(x,v[x])}
 function openTheme(){const cur=getState().theme||"pink";openModal(`<h2>🎨 Theme</h2><p class="count" style="margin-bottom:12px">Pick a color for your whole wall</p><div class="themes">${Object.entries(THEMES).map(([k,t])=>`<button class="theme-card${k===cur?" on":""}" data-themepick="${k}"><span class="theme-sw" style="background:linear-gradient(135deg,${t.g[0]},${t.g[2]})"><i style="background:linear-gradient(135deg,${t.b[0]},${t.b[1]})"></i><i style="background:${t.as}"></i><i style="background:${t.ink}"></i></span>${t.name}</button>`).join("")}</div>`)}
 
 /* ---------- record & summarize ---------- */
@@ -1017,7 +1037,7 @@ let rq=false;
 function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
   const C=compute();mood.sleepy=C.lastLogTs>0&&Date.now()-C.lastLogTs>48*3600e3;
-  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const th=getState().theme||"pink";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
+  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const sn=getState().night;if(sn!==undefined&&!!sn!==NIGHT_ON){NIGHT_ON=!!sn;UI.theme=null;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}}$("#nightBtn").textContent=NIGHT_ON?"☀️":"🌙";const th=getState().theme||"pink";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
   $("#muteBtn").textContent=getState().mute?"🔇":"🔊";
   if(store.ready)checkLevel(C);
 }
@@ -1084,6 +1104,7 @@ document.addEventListener("click",e=>{
   if(d.confirmnote){deleteDoc(d.confirmnote);closeModal();toast("Idea deleted");return}
   if(b.id==="shareBtn"){const C=compute();shareModal(C,`Climbing ${gradeInfo(C.grade).label}`,"",false);return}
   if(b.id==="themeBtn")return openTheme();
+  if(b.id==="nightBtn"){NIGHT_ON=!NIGHT_ON;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}applyTheme(getState().theme||"pink");UI.theme=getState().theme||"pink";updateState({night:NIGHT_ON});Sound.pop();return}
   if(d.themepick){applyTheme(d.themepick);UI.theme=d.themepick;try{localStorage.setItem("jinny-theme",d.themepick)}catch(e){}updateState({theme:d.themepick});Sound.pop();openTheme();return}
   if(b.id==="recBtn"){if(REC.mr)stopRec();else startRec();return}
   if(b.id==="recRetry")return summarizeRec();
@@ -1149,7 +1170,7 @@ async function initFirebase(){
 }
 
 /* ---------- boot ---------- */
-try{applyTheme(localStorage.getItem("jinny-theme")||"pink")}catch(e){}buildRows();store.docs=loadLocalDocs();store.ready=true;render();checkRecap();initFirebase();
+try{NIGHT_ON=localStorage.getItem("jinny-night")==="1";applyTheme(localStorage.getItem("jinny-theme")||"pink")}catch(e){}buildRows();store.docs=loadLocalDocs();store.ready=true;render();checkRecap();initFirebase();
 </script>
 </body>
 </html>
