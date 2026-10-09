@@ -222,7 +222,7 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
 </head>
 <body>
 <header class="top">
-  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28s-11-7-11-15a6 6 0 0 1 11-3.5A6 6 0 0 1 27 13c0 8-11 15-11 15z" fill="#F27BA6"/><circle cx="16" cy="15" r="3.2" fill="#E0568A"/><circle cx="16" cy="15" r="1.4" fill="#5A2E44"/><ellipse cx="11" cy="10.5" rx="2.4" ry="1.4" fill="#fff" opacity=".7"/></svg>Jinny's Wall</div>
+  <div class="brand"><span aria-hidden="true">🌷</span>Jinny's Wall</div>
   <nav class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="climb">Climb</button>
     <button role="tab" aria-selected="false" data-tab="journal">Journal</button>
@@ -680,7 +680,7 @@ function renderBrain(C){
 
 /* ---------- hero, mood, rows ---------- */
 let UI={sport:"Tennis",mood:0,logsK:null,calMonth:null};
-function greeting(){const h=new Date().getHours();return h<5?`Up late, ${NICK}? 🌙`:h<12?`Good morning, ${NICK}! 🌷`:h<18?`Hi ${NICK}! 💗`:`Good evening, ${NICK} ✨`}
+function greeting(){const h=new Date().getHours();return h<5?`Up late, ${NICK}?`:h<12?`Good morning, ${NICK}!`:h<18?`Hi ${NICK}!`:`Good evening, ${NICK}!`}
 function renderHero(C){
   const gi=gradeInfo(C.grade);const tc=darkText(gi.ci)?"#3A2230":"#FFFFFF";
   $("#hero").innerHTML=`
