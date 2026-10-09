@@ -109,6 +109,10 @@ textarea{width:100%;resize:vertical;min-height:120px;line-height:1.6}
 .item.leaving{opacity:0;transform:translateX(14px)}
 .tick{width:21px;height:21px;min-height:21px;padding:0;border-radius:7px;border:2px solid var(--pink);background:#fff;flex:none;margin-top:1px;box-shadow:none}
 .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.item span{flex:1}
+.idel{min-height:26px;padding:0 8px;font-size:13px;opacity:.5;flex:none}
+.idel:hover,.idel:focus-visible{opacity:1}
 .row input{flex:1}
 .empty{color:var(--muted);font-size:14px;padding:16px;border:2px dashed var(--line);border-radius:20px;background:rgba(255,255,255,.6);font-weight:600}
 .composer{padding:16px;display:flex;flex-direction:column;gap:10px}
@@ -252,7 +256,7 @@ html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night but
   </nav>
   <div class="tools"><span class="sync" id="sync">Loading</span><button id="authBtn" hidden>Sign in</button><button class="ghost" id="nightBtn" aria-label="Night mode" title="Night mode">🌙</button><button class="ghost" id="themeBtn" aria-label="Change theme" title="Theme">🎨</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
 </header>
-<div class="banner" id="signBanner" hidden><div>🌸 Sign in with Google to sync your climb between your phone and computer. <button class="primary" id="bannerSignIn">Sign in</button></div></div>
+<div class="banner" id="signBanner" hidden><div>Sign in with Google to sync your climb between your phone and computer. <button class="primary" id="bannerSignIn">Sign in</button></div></div>
 
 <div class="layout">
   <main>
@@ -776,7 +780,7 @@ let listSig="";
 function renderLists(){
   const data=getLists();const active=data.lists.filter(l=>!l.doneAt);const sig=JSON.stringify(active);if(sig===listSig)return;listSig=sig;
   const focusId=document.activeElement&&document.activeElement.id;const vals={};document.querySelectorAll("#lists input").forEach(i=>vals[i.id]=i.value);
-  $("#lists").innerHTML=active.length?active.map(l=>`<div class="list panel"><h3>${esc(l.name)}</h3>${l.items.filter(i=>!i.done).map(i=>`<div class="item" id="it-${i.id}"><button class="tick" data-tick="${l.id}|${i.id}" aria-label="Mark ${esc(i.text)} done"></button><span>${esc(i.text)}</span></div>`).join("")||`<p class="count">Add your first checkpoint</p>`}<div class="row" style="margin-top:4px"><input id="ni-${l.id}" placeholder="New checkpoint" aria-label="New checkpoint for ${esc(l.name)}"><button data-additem="${l.id}">Add</button></div></div>`).join(""):`<p class="empty">Make a list for anything you want to keep track of. Ticked items move to the done archive, and a list disappears once everything in it is done.</p>`;
+  $("#lists").innerHTML=active.length?active.map(l=>`<div class="list panel"><div class="list-head"><h3>${esc(l.name)}</h3><button class="ghost idel" data-dellistnow="${l.id}" title="Delete list" aria-label="Delete list ${esc(l.name)}">🗑</button></div>${l.items.filter(i=>!i.done).map(i=>`<div class="item" id="it-${i.id}"><button class="tick" data-tick="${l.id}|${i.id}" aria-label="Mark ${esc(i.text)} done"></button><span>${esc(i.text)}</span><button class="ghost idel" data-delitem="${l.id}|${i.id}" title="Delete" aria-label="Delete ${esc(i.text)}">✕</button></div>`).join("")||`<p class="count">Add your first checkpoint</p>`}<div class="row" style="margin-top:4px"><input id="ni-${l.id}" placeholder="New checkpoint" aria-label="New checkpoint for ${esc(l.name)}"><button data-additem="${l.id}">Add</button></div></div>`).join(""):`<p class="empty">Make a list for anything you want to keep track of. Ticked items move to the done archive, and a list disappears once everything in it is done.</p>`;
   Object.entries(vals).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
 }
 function addList(){const name=$("#newList").value.trim();if(!name){$("#newList").focus();return}const d=getLists();d.lists.push({id:uid(),name,created:Date.now(),items:[],doneAt:null});writeDoc("checklists",d);$("#newList").value=""}
@@ -1082,6 +1086,9 @@ document.addEventListener("click",e=>{
   if(d.additem)return addItem(d.additem);
   if(d.tick){const[l,i]=d.tick.split("|");return tickItem(l,i)}
   if(d.restore){const[l,i]=d.restore.split("|");return restoreItem(l,i)}
+  if(d.delitem){const[lid,iid]=d.delitem.split("|");const x=getLists();const l=x.lists.find(q=>q.id===lid);if(!l)return;const idx=l.items.findIndex(q=>q.id===iid);if(idx<0)return;const gone=l.items.splice(idx,1)[0];listSig="";writeDoc("checklists",x);toast("Checkpoint deleted",()=>{const y=getLists();const l2=y.lists.find(q=>q.id===lid);if(!l2)return;l2.items.splice(Math.min(idx,l2.items.length),0,gone);listSig="";writeDoc("checklists",y)});return}
+  if(d.dellistnow){const l=getLists().lists.find(q=>q.id===d.dellistnow);if(!l)return;openModal(`<h2>Delete "${esc(l.name)}"?</h2><p class="count" style="margin-bottom:14px">The list and all its checkpoints will be removed for good. It won't go to the done archive.</p><div class="row" style="justify-content:flex-end"><button data-close>Keep it</button><button class="primary" data-confirmlist="${l.id}">Delete list</button></div>`);return}
+  if(d.confirmlist){const x=getLists();x.lists=x.lists.filter(q=>q.id!==d.confirmlist);listSig="";writeDoc("checklists",x);closeModal();toast("List deleted");return}
   if(d.dellist){const x=getLists();x.lists=x.lists.filter(l=>l.id!==d.dellist);writeDoc("checklists",x);openArchive();return}
   if(b.id==="muteBtn"){updateState({mute:!getState().mute});if(!getState().mute){Sound.get();Sound.pop()}return}
   if(b.id==="attachBtn"){if(!FB.user){toast("Sign in first to attach files");return}return $("#fileInput").click()}
