@@ -182,6 +182,13 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
 .sw{width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--line);padding:0;min-height:0}
 .sw.on{box-shadow:0 0 0 3px var(--pink-deep)}
 .chip.on:hover{background:var(--pink-deep);color:#fff}
+.sw{width:27px;height:27px}
+.swsep{width:10px;flex:none}
+.acc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px}
+.acc-row{display:flex;align-items:center;gap:6px}
+.acc-sw{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:var(--pink-pale);border-radius:14px}
+.accdot{width:24px;height:24px;border-radius:50%;padding:0;min-height:0;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--line);flex:none}
+.accdot.open{box-shadow:0 0 0 3px var(--pink-deep)}
 .tagbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .tag-sec h3{font-size:17px;font-weight:600;margin:16px 4px 8px;display:flex;align-items:center;gap:8px}
 @media (max-width:560px){.closet{grid-template-columns:1fr}.closet .preview{position:static}}
@@ -464,11 +471,11 @@ function climberMarkupOld(){
   <g id="zzz" style="display:none"><text class="zz" x="10" y="-48" font-size="9" font-weight="700" fill="#B83E6C">z</text><text class="zz zz2" x="14" y="-54" font-size="7" font-weight="700" fill="#B83E6C">z</text></g>
   </g>`;
 }
-const OUTFIT_DEF={hair:"long",hairColor:"#5A3825",skin:"#F5CDB3",top:"#8A5BE0",pants:"#F27BA6",shoes:"#B83E6C",acc:["clip"]};
-const CLOSET={hair:[["long","Long"],["ponytail","Ponytail"],["bun","Bun"],["bob","Bob"],["braids","Braids"],["pigtails","Pigtails"],["short","Short"]],hairColor:["#5A3825","#2A2025","#8B5A3C","#E3B65E","#F49AC1","#B9A0E8","#B5452E"],skin:["#FBE0CF","#F5CDB3","#E0AC88","#C68863","#8D5A3E"],top:["#8A5BE0","#F27BA6","#FFFFFF","#7FD1C1","#3A8BEA","#2A2A2E","#F7C52B"],pants:["#F27BA6","#8A5BE0","#2A2A2E","#4A6FA5","#FFFFFF","#7FD1C1"],shoes:["#B83E6C","#2A2A2E","#FFFFFF","#6A3FC4","#2BA39A"],acc:[["clip","Hair clip"],["bow","Bow"],["headband","Headband"],["glasses","Glasses"],["cap","Cap"],["earrings","Earrings"]]};
+const OUTFIT_DEF_OLD={hair:"long",hairColor:"#5A3825",skin:"#F5CDB3",top:"#8A5BE0",pants:"#F27BA6",shoes:"#B83E6C",acc:["clip"]};
+const CLOSET_OLD={hair:[["long","Long"],["ponytail","Ponytail"],["bun","Bun"],["bob","Bob"],["braids","Braids"],["pigtails","Pigtails"],["short","Short"]],hairColor:["#5A3825","#2A2025","#8B5A3C","#E3B65E","#F49AC1","#B9A0E8","#B5452E"],skin:["#FBE0CF","#F5CDB3","#E0AC88","#C68863","#8D5A3E"],top:["#8A5BE0","#F27BA6","#FFFFFF","#7FD1C1","#3A8BEA","#2A2A2E","#F7C52B"],pants:["#F27BA6","#8A5BE0","#2A2A2E","#4A6FA5","#FFFFFF","#7FD1C1"],shoes:["#B83E6C","#2A2A2E","#FFFFFF","#6A3FC4","#2BA39A"],acc:[["clip","Hair clip"],["bow","Bow"],["headband","Headband"],["glasses","Glasses"],["cap","Cap"],["earrings","Earrings"]]};
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));return"#"+[n>>16,(n>>8)&255,n&255].map(v=>f(v).toString(16).padStart(2,"0")).join("")}
-function outfit(){const o=Object.assign({},OUTFIT_DEF,getState().outfit||{});if(!Array.isArray(o.acc))o.acc=[];return o}
-function figure(o,p,ids){
+function outfitOld(){const o=Object.assign({},OUTFIT_DEF,getState().outfit||{});if(!Array.isArray(o.acc))o.acc=[];return o}
+function figureOld(o,p,ids){
   const I=n=>ids?` id="${n}"`:"";const hc=o.hairColor,sk=o.skin,acc=new Set(o.acc);const white=o.top==="#FFFFFF";const sleeve=white?"#F3E6EC":shade(o.top,-.18);
   const L=(id,x,y,pt,col,w)=>`<line${I(id)} class="limb" x1="${x}" y1="${y}" x2="${pt[0]}" y2="${pt[1]}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
   const E=(id,pt,col)=>`<ellipse${I(id)} class="limb" cx="${pt[0]}" cy="${pt[1]}" rx="5" ry="3.5" fill="${col}"${col==="#FFFFFF"?' stroke="#D8C5CE" stroke-width=".7"':""}/>`;
@@ -502,15 +509,79 @@ function figure(o,p,ids){
 }
 function climberMarkup(){return figure(outfit(),POSES[mood.pose]||POSES.a,true)}
 let draft=null;
-function openCloset(){draft=clone(outfit());const sw=(key,cols)=>`<div class="row">${cols.map(c=>`<button class="sw" style="background:${c}" data-cl="${key}|${c}" aria-label="${key} color"></button>`).join("")}</div>`;
+function openClosetOld(){draft=clone(outfit());const sw=(key,cols)=>`<div class="row">${cols.map(c=>`<button class="sw" style="background:${c}" data-cl="${key}|${c}" aria-label="${key} color"></button>`).join("")}</div>`;
   openModal(`<h2>👗 Jinny's closet</h2><div class="closet"><div class="preview"><svg id="closetPrev" viewBox="-28 -62 56 88" width="140" height="220" aria-hidden="true"></svg></div><div>
   <h3>Hairstyle</h3><div class="row">${CLOSET.hair.map(([k,n])=>`<button class="chip" data-cl="hair|${k}">${n}</button>`).join("")}</div>
   <h3>Hair color</h3>${sw("hairColor",CLOSET.hairColor)}<h3>Skin</h3>${sw("skin",CLOSET.skin)}<h3>Top</h3>${sw("top",CLOSET.top)}<h3>Pants</h3>${sw("pants",CLOSET.pants)}<h3>Shoes</h3>${sw("shoes",CLOSET.shoes)}
   <h3>Accessories</h3><div class="row">${CLOSET.acc.map(([k,n])=>`<button class="chip" data-clacc="${k}">${n}</button>`).join("")}</div></div></div>
   <div class="row" style="justify-content:flex-end;margin-top:16px"><button data-close>Cancel</button><button class="primary" id="closetSave">Wear it 💗</button></div>`);updateCloset()}
-function updateCloset(){const pv=$("#closetPrev");if(!pv)return;pv.innerHTML=figure(draft,POSES.cheer,false);
+function updateClosetOld(){const pv=$("#closetPrev");if(!pv)return;pv.innerHTML=figure(draft,POSES.cheer,false);
   document.querySelectorAll("[data-cl]").forEach(b=>{const[k,v]=b.dataset.cl.split("|");b.classList.toggle("on",draft[k]===v)});
   document.querySelectorAll("[data-clacc]").forEach(b=>b.classList.toggle("on",draft.acc.includes(b.dataset.clacc)))}
+const PAL_CLASSIC=["#8A5BE0","#F27BA6","#B83E6C","#FFFFFF","#2A2A2E","#4A6FA5","#3A8BEA","#7FD1C1","#F7C52B"];
+const PAL_PASTEL=["#FFD1DC","#FFE5B4","#FFF5BA","#D7F5D0","#C9E4DE","#D4F0FC","#E6E6FA","#F3D1F4"];
+const PAL_MONET=["#A7C4D9","#6C8EBF","#9DB4C0","#B5C99A","#7A9E7E","#CDB4DB","#D8A7B1","#E8C1C5","#F2D0A9","#F4E1A6"];
+const CLOTH=[PAL_CLASSIC,PAL_PASTEL,PAL_MONET];
+const OUTFIT_DEF={v:2,hair:"long",hairColor:"#5A3825",skin:"#F5CDB3",top:"#8A5BE0",pants:"#F27BA6",shoes:"#B83E6C",acc:["clip","chalkbag"],accColor:{}};
+const ACC_DEF={clip:"#F27BA6",bow:"#FF7EB0",headband:"#F27BA6",glasses:"#5A2E44",cap:"#F27BA6",earrings:"#FFD84D",harness:"#8A5BE0",chalkbag:"#FFD3E3"};
+const CLOSET={hair:[["long","Long"],["ponytail","Ponytail"],["bun","Bun"],["bob","Bob"],["braids","Braids"],["pigtails","Pigtails"],["short","Short"]],
+  hairColor:[["#5A3825","#2A2025","#8B5A3C","#E3B65E","#B5452E"],["#F49AC1","#B9A0E8","#A7C4D9","#B5C99A","#F7F3EE"]],
+  skin:[["#FBE0CF","#F5CDB3","#E0AC88","#C68863","#8D5A3E"]],
+  acc:[["clip","Hair clip"],["bow","Bow"],["headband","Headband"],["glasses","Glasses"],["cap","Cap"],["earrings","Earrings"],["harness","Harness"],["chalkbag","Chalk bag"]],
+  accColors:[PAL_CLASSIC,PAL_PASTEL,PAL_MONET,["#FFD84D","#C9C9CF"]]};
+function outfit(){const st=getState().outfit;const o=Object.assign({},OUTFIT_DEF,st||{});o.acc=Array.isArray(o.acc)?o.acc.slice():[];if(st&&!st.v&&!o.acc.includes("chalkbag"))o.acc.push("chalkbag");o.accColor=Object.assign({},ACC_DEF,o.accColor||{});o.v=2;return o}
+function figure(o,p,ids){
+  const I=n=>ids?` id="${n}"`:"";const hc=o.hairColor,sk=o.skin,acc=new Set(o.acc);const AC=k=>(o.accColor&&o.accColor[k])||ACC_DEF[k];
+  const white=o.top==="#FFFFFF";const sleeve=white?"#F3E6EC":shade(o.top,-.18);
+  const L=(id,x,y,pt,col,w)=>`<line${I(id)} class="limb" x1="${x}" y1="${y}" x2="${pt[0]}" y2="${pt[1]}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const E=(id,pt,col)=>`<ellipse${I(id)} class="limb" cx="${pt[0]}" cy="${pt[1]}" rx="5" ry="3.5" fill="${col}"${col==="#FFFFFF"?' stroke="#D8C5CE" stroke-width=".7"':""}/>`;
+  const H=(id,pt)=>`<circle${I(id)} class="limb" cx="${pt[0]}" cy="${pt[1]}" r="3.4" fill="${sk}"/>`;
+  let back="";
+  if(o.hair==="long")back=`<path class="hairback" d="M-10.5 -38 Q-13 -26 -11 -15 Q-6 -12 0 -13 Q6 -12 11 -15 Q13 -26 10.5 -38 Q0 -50 -10.5 -38Z" fill="${hc}"/>`;
+  if(o.hair==="bob")back=`<path d="M-11 -38 Q-12.5 -30 -10.5 -25 Q0 -22 10.5 -25 Q12.5 -30 11 -38 Q0 -50 -11 -38Z" fill="${hc}"/>`;
+  if(o.hair==="ponytail")back=`<path class="ptail" d="M6 -43 Q20 -40 17 -24 Q13 -31 7 -36Z" fill="${hc}"/>`;
+  if(o.hair==="pigtails")back=`<path class="ptail" d="M8 -40 Q19 -36 16 -26 Q13 -32 8 -35Z" fill="${hc}"/><path class="ptail" style="animation-delay:.5s" d="M-8 -40 Q-19 -36 -16 -26 Q-13 -32 -8 -35Z" fill="${hc}"/>`;
+  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="#F27BA6"/>`).join("");
+  if(o.hair==="bun")back=`<circle cx="0" cy="-48.5" r="5.2" fill="${hc}"/><circle cx="-1.5" cy="-50" r="1.6" fill="${shade(hc,.25)}" opacity=".6"/>`;
+  let front=`<path d="M-9.6 -36 Q-10 -47 0 -47 Q10 -47 9.6 -36 Q8 -41 4 -42.5 Q1 -39.5 -3 -42 Q-7 -41 -9.6 -36Z" fill="${hc}"/>`;
+  if(o.hair==="long"||o.hair==="bob"){const e=o.hair==="bob"?-29:-26;front+=`<path d="M-9.4 -38 Q-11.2 -31 -9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/><path d="M9.4 -38 Q11.2 -31 9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/>`}
+  let a="";
+  if(acc.has("headband"))a+=`<path d="M-9.4 -40.5 Q0 -49.5 9.4 -40.5" fill="none" stroke="${AC("headband")}" stroke-width="2.4" stroke-linecap="round"/>`;
+  if(acc.has("cap"))a+=`<path d="M-9.9 -40 Q-9.5 -50.5 0 -50.5 Q9.5 -50.5 9.9 -40Z" fill="${AC("cap")}"/><path d="M-1 -41.2 Q10 -43.5 15.5 -40.2 Q10 -38.6 -1 -39.6Z" fill="${shade(AC("cap"),-.15)}"/><circle cx="0" cy="-50.3" r="1.2" fill="${shade(AC("cap"),-.15)}"/>`;
+  if(acc.has("bow"))a+=`<g transform="translate(${acc.has("cap")?-6:-5} -46.5) rotate(-15)"><path d="M0 0 L-6 -4 Q-7.5 0 -6 4Z M0 0 L6 -4 Q7.5 0 6 4Z" fill="${AC("bow")}"/><circle r="1.7" fill="${shade(AC("bow"),-.2)}"/></g>`;
+  if(acc.has("clip"))a+=`<circle cx="7" cy="-44" r="2.2" fill="${AC("clip")}"/><circle cx="9.2" cy="-43" r="1.6" fill="${shade(AC("clip"),.3)}"/>`;
+  if(acc.has("glasses"))a+=`<g fill="rgba(255,255,255,.25)" stroke="${AC("glasses")}" stroke-width=".9"><circle cx="-3.4" cy="-35" r="2.7"/><circle cx="3.4" cy="-35" r="2.7"/><path d="M-0.7 -35.3 L0.7 -35.3" fill="none"/></g>`;
+  if(acc.has("earrings"))a+=`<circle cx="-9" cy="-31" r="1.2" fill="${AC("earrings")}"/><circle cx="9" cy="-31" r="1.2" fill="${AC("earrings")}"/>`;
+  const hn=AC("harness");
+  const harness=acc.has("harness")?`<path d="M-6 -2.5 Q-8.5 3 -4 5 Q-0.5 3.5 -1.5 -2.5 M6 -2.5 Q8.5 3 4 5 Q0.5 3.5 1.5 -2.5" fill="none" stroke="${hn}" stroke-width="1.7" stroke-linecap="round"/><rect x="-8.9" y="-6.4" width="17.8" height="4.4" rx="1.8" fill="${hn}"/><rect x="-1.3" y="-5.9" width="2.6" height="3.4" rx=".7" fill="#D9D3D6" stroke="#8A8086" stroke-width=".4"/><circle cx="0" cy="-0.6" r="1.8" fill="none" stroke="${shade(hn,-.3)}" stroke-width="1.1"/>`:"";
+  const cb=AC("chalkbag");
+  const chalk=acc.has("chalkbag")?`<rect x="6" y="-6" width="7" height="8" rx="2" fill="${cb}" stroke="${shade(cb,-.35)}" stroke-width=".8"/><rect x="5.8" y="-6.8" width="7.4" height="1.8" rx=".9" fill="#FFFFFF" opacity=".85"/>`:"";
+  return `<g${I("clInner")}>${back}${L("ll",-3,0,p.ll,o.pants,6.5)}${L("rl",3,0,p.rl,o.pants,6.5)}${E("llf",p.ll,o.shoes)}${E("rlf",p.rl,o.shoes)}
+  <rect x="-8" y="-27" width="16" height="25" rx="6" fill="${o.top}"${white?' stroke="#E2CBD5" stroke-width=".8"':""}/><path d="M-8 -16 L8 -20 L8 -16 L-8 -12Z" fill="${white?"#FFB3CE":shade(o.top,.45)}"/>
+  <rect x="-8" y="-5" width="16" height="4" rx="1.5" fill="${shade(o.pants,-.4)}"/>${harness}${chalk}
+  ${L("la",-5,-23,p.la,sleeve,5.5)}${L("ra",5,-23,p.ra,sleeve,5.5)}${H("lah",p.la)}${H("rah",p.ra)}
+  <g${I("head")}><circle cx="0" cy="-36" r="9" fill="${sk}"/>${front}
+  <g${I("eyesOpen")}><circle cx="-3.2" cy="-35" r="1.3" fill="#2C2026"/><circle cx="3.2" cy="-35" r="1.3" fill="#2C2026"/><circle cx="-2.8" cy="-35.4" r=".4" fill="#fff"/><circle cx="3.6" cy="-35.4" r=".4" fill="#fff"/></g>
+  <g${I("eyesShut")} style="display:none"><path d="M-4.6 -35 Q-3.2 -34 -1.8 -35" stroke="#2C2026" stroke-width="1" fill="none"/><path d="M1.8 -35 Q3.2 -34 4.6 -35" stroke="#2C2026" stroke-width="1" fill="none"/></g>
+  <path${I("mouth")} d="M-2.5 -31.5 Q0 -29.5 2.5 -31.5" fill="none" stroke="#B83E6C" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="-5.6" cy="-32.6" r="1.7" fill="#FF9EC2" opacity=".75"/><circle cx="5.6" cy="-32.6" r="1.7" fill="#FF9EC2" opacity=".75"/>${a}</g>
+  ${ids?`<g id="zzz" style="display:none"><text class="zz" x="10" y="-48" font-size="9" font-weight="700" fill="#B83E6C">z</text><text class="zz zz2" x="14" y="-54" font-size="7" font-weight="700" fill="#B83E6C">z</text></g>`:""}</g>`;
+}
+function swatches(attr,key,groups){return `<div class="row" style="gap:5px">${groups.map(g=>g.map(c=>`<button class="sw" style="background:${c}" data-${attr}="${key}|${c}" aria-label="color ${c}"></button>`).join("")).join('<span class="swsep"></span>')}</div>`}
+function openCloset(){draft=clone(outfit());UI.accOpen=null;
+  openModal(`<h2>👗 Jinny's closet</h2><div class="closet"><div class="preview"><svg id="closetPrev" viewBox="-28 -62 56 88" width="140" height="220" aria-hidden="true"></svg></div><div>
+  <h3>Hairstyle</h3><div class="row">${CLOSET.hair.map(([k,n])=>`<button class="chip" data-cl="hair|${k}">${n}</button>`).join("")}</div>
+  <h3>Hair color</h3>${swatches("cl","hairColor",CLOSET.hairColor)}<h3>Skin</h3>${swatches("cl","skin",CLOSET.skin)}
+  <h3>Top</h3>${swatches("cl","top",CLOTH)}<h3>Pants</h3>${swatches("cl","pants",CLOTH)}<h3>Shoes</h3>${swatches("cl","shoes",CLOTH)}
+  <p class="count" style="margin-top:4px">Classic, pastel, and Monet colors 🎨</p>
+  <h3>Accessories</h3><p class="count" style="margin:-2px 0 8px">Tap a name to wear or take it off, tap its dot to change the color</p>
+  <div class="acc-list">${CLOSET.acc.map(([k,n])=>`<div class="acc-row"><button class="chip" data-clacc="${k}">${n}</button><button class="accdot" data-accpick="${k}" aria-label="${n} color"></button></div><div class="acc-sw" id="accsw-${k}" hidden>${swatches("cla",k,CLOSET.accColors)}</div>`).join("")}</div></div></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button data-close>Cancel</button><button class="primary" id="closetSave">Wear it 💗</button></div>`);updateCloset()}
+function updateCloset(){const pv=$("#closetPrev");if(!pv)return;pv.innerHTML=figure(draft,POSES.cheer,false);
+  document.querySelectorAll("[data-cl]").forEach(b=>{const[k,v]=b.dataset.cl.split("|");b.classList.toggle("on",draft[k]===v)});
+  document.querySelectorAll("[data-clacc]").forEach(b=>b.classList.toggle("on",draft.acc.includes(b.dataset.clacc)));
+  document.querySelectorAll("[data-accpick]").forEach(b=>{const k=b.dataset.accpick;b.style.background=draft.accColor[k]||ACC_DEF[k];b.classList.toggle("open",UI.accOpen===k);const s=document.getElementById("accsw-"+k);if(s)s.hidden=UI.accOpen!==k});
+  document.querySelectorAll("[data-cla]").forEach(b=>{const[k,v]=b.dataset.cla.split("|");b.classList.toggle("on",(draft.accColor[k]||ACC_DEF[k])===v)})}
 function applyPose(){
   if(!document.getElementById("la"))return;
   const sleepy=mood.sleepy&&Date.now()>mood.cheerUntil;
@@ -593,7 +664,7 @@ function renderBrain(C){
 
 /* ---------- hero, mood, rows ---------- */
 let UI={sport:"Tennis",mood:0,logsK:null,calMonth:null};
-function greeting(){const h=new Date().getHours();return h<5?`Up late, ${NICK}? 🌙`:h<12?`Good morning, ${NICK}! 🌸`:h<18?`Hi ${NICK}! 💗`:`Good evening, ${NICK} ✨`}
+function greeting(){const h=new Date().getHours();return h<5?`Up late, ${NICK}? 🌙`:h<12?`Good morning, ${NICK}! 🌷`:h<18?`Hi ${NICK}! 💗`:`Good evening, ${NICK} ✨`}
 function renderHero(C){
   const gi=gradeInfo(C.grade);const tc=darkText(gi.ci)?"#3A2230":"#FFFFFF";
   $("#hero").innerHTML=`
@@ -910,6 +981,8 @@ document.addEventListener("click",e=>{
   if(d.confirmnote){deleteDoc(d.confirmnote);closeModal();toast("Idea deleted");return}
   if(b.id==="shareBtn"){const C=compute();shareModal(C,`Climbing ${gradeInfo(C.grade).label}`,"",false);return}
   if(b.id==="closetBtn")return openCloset();
+  if(d.accpick){UI.accOpen=UI.accOpen===d.accpick?null:d.accpick;updateCloset();return}
+  if(d.cla){const[k,v]=d.cla.split("|");draft.accColor[k]=v;if(!draft.acc.includes(k))draft.acc.push(k);Sound.pop();updateCloset();return}
   if(d.cl){const[k,v]=d.cl.split("|");draft[k]=v;Sound.pop();updateCloset();return}
   if(d.clacc){const i=draft.acc.indexOf(d.clacc);if(i>=0)draft.acc.splice(i,1);else draft.acc.push(d.clacc);Sound.pop();updateCloset();return}
   if(b.id==="closetSave"){updateState({outfit:draft});closeModal();Sound.cheer();setTimeout(cheer,120);toast("New look saved 💗");return}
