@@ -54,7 +54,8 @@ textarea{width:100%;resize:vertical;min-height:120px;line-height:1.6}
 .wallcol{position:sticky;top:calc(12px + env(safe-area-inset-top,0px));height:calc(100vh - 100px);min-height:440px}
 .wallbox{height:100%;border-radius:26px;overflow-y:auto;overflow-x:hidden;position:relative;box-shadow:var(--shadow);border:3px solid #fff;scrollbar-width:thin;scrollbar-color:var(--pink-soft) transparent;background:#FCEAF1}
 .wallbox svg{display:block;width:100%;height:auto}
-.wall-tag{position:sticky;top:8px;left:8px;margin:8px 0 -34px 8px;opacity:.95;display:inline-block;font-family:var(--head);font-size:13px;font-weight:600;background:#fff;color:var(--pink-deep);border-radius:999px;padding:3px 11px;z-index:2;box-shadow:0 2px 8px rgba(226,104,150,.2)}
+.wall-top{position:sticky;top:8px;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:0 8px;margin:8px 0 -38px;z-index:2;pointer-events:none}.wall-top>*{pointer-events:auto}
+.wall-tag{opacity:.95;display:inline-block;font-family:var(--head);font-size:13px;font-weight:600;background:#fff;color:var(--pink-deep);border-radius:999px;padding:3px 11px;z-index:2;box-shadow:0 2px 8px rgba(226,104,150,.2)}
 .hero{display:grid;grid-template-columns:minmax(0,1.3fr) auto minmax(0,1fr) auto;gap:22px;align-items:center;padding:18px 22px;margin-bottom:14px;position:relative;overflow:hidden}
 .hero::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,#FFE0EC 0%,transparent 70%);pointer-events:none}
 .hello{font-family:var(--head);font-size:24px;font-weight:600;color:var(--pink-deep)}
@@ -172,13 +173,25 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
 .zz{animation:zz 2.4s ease-in-out infinite}.zz2{animation-delay:1.2s}
 .spark{animation:twinkle 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 .brain-full #brainAll{animation:pulse 1.6s ease-in-out infinite}
+.ptail{transform-origin:6px -40px;animation:hairsway 1.8s ease-in-out infinite}
+.closet-btn{min-height:30px;padding:3px 11px;font-size:13px;box-shadow:0 2px 8px rgba(226,104,150,.2);border-color:#fff}
+.sheet:has(.closet){max-width:640px}
+.closet{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px}
+.closet .preview{background:linear-gradient(180deg,#FFF8FB,#FBE3EC);border-radius:20px;display:flex;align-items:center;justify-content:center;align-self:start;position:sticky;top:0}
+.closet h3{font-family:var(--body);font-size:12.5px;font-weight:800;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sw{width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--line);padding:0;min-height:0}
+.sw.on{box-shadow:0 0 0 3px var(--pink-deep)}
+.chip.on:hover{background:var(--pink-deep);color:#fff}
+.tagbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag-sec h3{font-size:17px;font-weight:600;margin:16px 4px 8px;display:flex;align-items:center;gap:8px}
+@media (max-width:560px){.closet{grid-template-columns:1fr}.closet .preview{position:static}}
 @media (max-width:900px){.hero{grid-template-columns:1fr 1fr}.duo-row{grid-template-columns:1fr}}
 @media (max-width:760px){
   .layout{grid-template-columns:minmax(0,1fr);gap:14px;padding:0 12px 40px}
   .wallcol{order:-1;position:static;height:auto;min-height:0}
   .wallbox{height:170px;overflow-x:auto;overflow-y:hidden}
   .wallbox svg{width:auto;height:164px}
-  .wall-tag{position:absolute}
+  .wall-top{position:absolute;left:0;right:0;top:8px;margin:0}
   .top{padding:12px 12px 8px}.banner{padding:0 12px}
   .tabs{margin-left:0;width:100%}.tabs button{flex:1;padding:5px 8px}
   .hero{grid-template-columns:1fr;gap:12px}
@@ -224,8 +237,6 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
     </section>
 
     <section id="tab-journal" hidden>
-      <div class="sec-head"><h2>Mood calendar</h2></div>
-      <div class="cal panel" id="cal"></div>
       <div class="sec-head"><h2 id="composerTitle">New journal post</h2><span class="weeklabel">+5 XP for your first post each day</span></div>
       <div class="composer panel">
         <textarea id="jText" placeholder="Best moment of the week was..." aria-label="Journal text"></textarea>
@@ -240,13 +251,17 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
           <button class="primary" id="postBtn">Post</button>
         </div>
       </div>
-      <div class="stack" id="posts"></div>
+      <div class="sec-head"><h2>Mood calendar</h2></div>
+      <div class="cal panel" id="cal"></div>
+      <div class="sec-head"><h2>My journal</h2></div>
+      <div class="stack" id="posts" style="margin-top:0"></div>
     </section>
 
     <section id="tab-notes" hidden>
-      <div class="sec-head"><h2 id="noteTitle">New idea</h2></div>
+      <div class="sec-head"><h2 id="noteTitle">Notes</h2></div>
       <div class="composer panel">
         <textarea id="nText" placeholder="Any idea, big or tiny..." aria-label="Note text"></textarea>
+        <div class="tagbar" id="tagBar"></div>
         <div class="row">
           <button data-ai="nText">✨ Fix grammar</button>
           <button class="ghost" data-aiundo="nText" hidden>Undo fix</button>
@@ -255,8 +270,8 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
           <button class="primary" id="noteSave">Save note</button>
         </div>
       </div>
-      <div class="sec-head"><h2>My ideas</h2><input id="noteSearch" type="search" placeholder="Search keywords..." aria-label="Search notes" style="width:min(280px,100%)"></div>
-      <div class="stack" id="notes" style="margin-top:0"></div>
+      <div class="sec-head"><h2>My notes</h2><input id="noteSearch" type="search" placeholder="Search keywords..." aria-label="Search notes" style="width:min(280px,100%)"></div>
+      <div id="notes"></div>
     </section>
 
     <section id="tab-history" hidden>
@@ -269,7 +284,7 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
 
   <aside class="wallcol" aria-label="Climbing wall progress">
     <div class="wallbox" id="wallBox">
-      <div class="wall-tag" id="wallTag"></div>
+      <div class="wall-top"><span class="wall-tag" id="wallTag"></span><button class="closet-btn" id="closetBtn">👗 Closet</button></div>
       <svg id="wall" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Climbing wall showing your level">
         <defs id="wallDefs"></defs>
         <g id="wallLayer"></g>
@@ -424,7 +439,7 @@ const wallState={sig:"",vertical:true,len:0,lastLevel:null,lastVert:null};
 function isVertical(){return !window.matchMedia("(max-width:760px)").matches}
 const POSES={a:{la:[-16,-48],ra:[12,-18],ll:[-8,20],rl:[17,19]},b:{la:[16,-48],ra:[-12,-18],ll:[8,20],rl:[-17,19]},cheer:{la:[-14,-55],ra:[14,-55],ll:[-10,19],rl:[10,19]},hang:{la:[-12,-50],ra:[12,-50],ll:[-7,21],rl:[7,21]}};
 const mood={pose:"a",reach:false,cheerUntil:0,sleepy:false};
-function climberMarkup(){
+function climberMarkupOld(){
   return `<g id="clInner">
   <path class="hairback" d="M-10.5 -38 Q-13 -26 -11 -15 Q-6 -12 0 -13 Q6 -12 11 -15 Q13 -26 10.5 -38 Q0 -50 -10.5 -38Z" fill="#5A3825"/>
   <line id="ll" class="limb" x1="-3" y1="0" stroke="#F27BA6" stroke-width="6.5" stroke-linecap="round"/>
@@ -449,6 +464,53 @@ function climberMarkup(){
   <g id="zzz" style="display:none"><text class="zz" x="10" y="-48" font-size="9" font-weight="700" fill="#B83E6C">z</text><text class="zz zz2" x="14" y="-54" font-size="7" font-weight="700" fill="#B83E6C">z</text></g>
   </g>`;
 }
+const OUTFIT_DEF={hair:"long",hairColor:"#5A3825",skin:"#F5CDB3",top:"#8A5BE0",pants:"#F27BA6",shoes:"#B83E6C",acc:["clip"]};
+const CLOSET={hair:[["long","Long"],["ponytail","Ponytail"],["bun","Bun"],["bob","Bob"],["braids","Braids"],["pigtails","Pigtails"],["short","Short"]],hairColor:["#5A3825","#2A2025","#8B5A3C","#E3B65E","#F49AC1","#B9A0E8","#B5452E"],skin:["#FBE0CF","#F5CDB3","#E0AC88","#C68863","#8D5A3E"],top:["#8A5BE0","#F27BA6","#FFFFFF","#7FD1C1","#3A8BEA","#2A2A2E","#F7C52B"],pants:["#F27BA6","#8A5BE0","#2A2A2E","#4A6FA5","#FFFFFF","#7FD1C1"],shoes:["#B83E6C","#2A2A2E","#FFFFFF","#6A3FC4","#2BA39A"],acc:[["clip","Hair clip"],["bow","Bow"],["headband","Headband"],["glasses","Glasses"],["cap","Cap"],["earrings","Earrings"]]};
+function shade(hex,amt){const n=parseInt(hex.slice(1),16);const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));return"#"+[n>>16,(n>>8)&255,n&255].map(v=>f(v).toString(16).padStart(2,"0")).join("")}
+function outfit(){const o=Object.assign({},OUTFIT_DEF,getState().outfit||{});if(!Array.isArray(o.acc))o.acc=[];return o}
+function figure(o,p,ids){
+  const I=n=>ids?` id="${n}"`:"";const hc=o.hairColor,sk=o.skin,acc=new Set(o.acc);const white=o.top==="#FFFFFF";const sleeve=white?"#F3E6EC":shade(o.top,-.18);
+  const L=(id,x,y,pt,col,w)=>`<line${I(id)} class="limb" x1="${x}" y1="${y}" x2="${pt[0]}" y2="${pt[1]}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const E=(id,pt,col)=>`<ellipse${I(id)} class="limb" cx="${pt[0]}" cy="${pt[1]}" rx="5" ry="3.5" fill="${col}"${col==="#FFFFFF"?' stroke="#D8C5CE" stroke-width=".7"':""}/>`;
+  const H=(id,pt)=>`<circle${I(id)} class="limb" cx="${pt[0]}" cy="${pt[1]}" r="3.4" fill="${sk}"/>`;
+  let back="";
+  if(o.hair==="long")back=`<path class="hairback" d="M-10.5 -38 Q-13 -26 -11 -15 Q-6 -12 0 -13 Q6 -12 11 -15 Q13 -26 10.5 -38 Q0 -50 -10.5 -38Z" fill="${hc}"/>`;
+  if(o.hair==="bob")back=`<path d="M-11 -38 Q-12.5 -30 -10.5 -25 Q0 -22 10.5 -25 Q12.5 -30 11 -38 Q0 -50 -11 -38Z" fill="${hc}"/>`;
+  if(o.hair==="ponytail")back=`<path class="ptail" d="M6 -43 Q20 -40 17 -24 Q13 -31 7 -36Z" fill="${hc}"/>`;
+  if(o.hair==="pigtails")back=`<path class="ptail" d="M8 -40 Q19 -36 16 -26 Q13 -32 8 -35Z" fill="${hc}"/><path class="ptail" style="animation-delay:.5s" d="M-8 -40 Q-19 -36 -16 -26 Q-13 -32 -8 -35Z" fill="${hc}"/>`;
+  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="#F27BA6"/>`).join("");
+  if(o.hair==="bun")back=`<circle cx="0" cy="-48.5" r="5.2" fill="${hc}"/><circle cx="-1.5" cy="-50" r="1.6" fill="${shade(hc,.25)}" opacity=".6"/>`;
+  let front=`<path d="M-9.6 -36 Q-10 -47 0 -47 Q10 -47 9.6 -36 Q8 -41 4 -42.5 Q1 -39.5 -3 -42 Q-7 -41 -9.6 -36Z" fill="${hc}"/>`;
+  if(o.hair==="long"||o.hair==="bob"){const e=o.hair==="bob"?-29:-26;front+=`<path d="M-9.4 -38 Q-11.2 -31 -9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/><path d="M9.4 -38 Q11.2 -31 9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/>`}
+  let a="";
+  if(acc.has("headband"))a+=`<path d="M-9.4 -40.5 Q0 -49.5 9.4 -40.5" fill="none" stroke="#F27BA6" stroke-width="2.4" stroke-linecap="round"/>`;
+  if(acc.has("cap"))a+=`<path d="M-9.9 -40 Q-9.5 -50.5 0 -50.5 Q9.5 -50.5 9.9 -40Z" fill="#F27BA6"/><path d="M-1 -41.2 Q10 -43.5 15.5 -40.2 Q10 -38.6 -1 -39.6Z" fill="#E0568A"/><circle cx="0" cy="-50.3" r="1.2" fill="#E0568A"/>`;
+  if(acc.has("bow"))a+=`<g transform="translate(${acc.has("cap")?-6:-5} -46.5) rotate(-15)"><path d="M0 0 L-6 -4 Q-7.5 0 -6 4Z M0 0 L6 -4 Q7.5 0 6 4Z" fill="#FF7EB0"/><circle r="1.7" fill="#E0568A"/></g>`;
+  if(acc.has("clip"))a+=`<circle cx="7" cy="-44" r="2.2" fill="#F27BA6"/><circle cx="9.2" cy="-43" r="1.6" fill="#FF9EC2"/>`;
+  if(acc.has("glasses"))a+=`<g fill="rgba(255,255,255,.25)" stroke="#5A2E44" stroke-width=".9"><circle cx="-3.4" cy="-35" r="2.7"/><circle cx="3.4" cy="-35" r="2.7"/><path d="M-0.7 -35.3 L0.7 -35.3" fill="none"/></g>`;
+  if(acc.has("earrings"))a+=`<circle cx="-9" cy="-31" r="1.2" fill="#FFD84D"/><circle cx="9" cy="-31" r="1.2" fill="#FFD84D"/>`;
+  return `<g${I("clInner")}>${back}${L("ll",-3,0,p.ll,o.pants,6.5)}${L("rl",3,0,p.rl,o.pants,6.5)}${E("llf",p.ll,o.shoes)}${E("rlf",p.rl,o.shoes)}
+  <rect x="-8" y="-27" width="16" height="25" rx="6" fill="${o.top}"${white?' stroke="#E2CBD5" stroke-width=".8"':""}/><path d="M-8 -16 L8 -20 L8 -16 L-8 -12Z" fill="${white?"#FFB3CE":shade(o.top,.45)}"/>
+  <rect x="-8" y="-5" width="16" height="4" rx="1.5" fill="${shade(o.pants,-.4)}"/><rect x="6" y="-6" width="7" height="8" rx="2" fill="#FFD3E3" stroke="#B83E6C" stroke-width=".8"/>
+  ${L("la",-5,-23,p.la,sleeve,5.5)}${L("ra",5,-23,p.ra,sleeve,5.5)}${H("lah",p.la)}${H("rah",p.ra)}
+  <g${I("head")}><circle cx="0" cy="-36" r="9" fill="${sk}"/>${front}
+  <g${I("eyesOpen")}><circle cx="-3.2" cy="-35" r="1.3" fill="#2C2026"/><circle cx="3.2" cy="-35" r="1.3" fill="#2C2026"/><circle cx="-2.8" cy="-35.4" r=".4" fill="#fff"/><circle cx="3.6" cy="-35.4" r=".4" fill="#fff"/></g>
+  <g${I("eyesShut")} style="display:none"><path d="M-4.6 -35 Q-3.2 -34 -1.8 -35" stroke="#2C2026" stroke-width="1" fill="none"/><path d="M1.8 -35 Q3.2 -34 4.6 -35" stroke="#2C2026" stroke-width="1" fill="none"/></g>
+  <path${I("mouth")} d="M-2.5 -31.5 Q0 -29.5 2.5 -31.5" fill="none" stroke="#B83E6C" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="-5.6" cy="-32.6" r="1.7" fill="#FF9EC2" opacity=".75"/><circle cx="5.6" cy="-32.6" r="1.7" fill="#FF9EC2" opacity=".75"/>${a}</g>
+  ${ids?`<g id="zzz" style="display:none"><text class="zz" x="10" y="-48" font-size="9" font-weight="700" fill="#B83E6C">z</text><text class="zz zz2" x="14" y="-54" font-size="7" font-weight="700" fill="#B83E6C">z</text></g>`:""}</g>`;
+}
+function climberMarkup(){return figure(outfit(),POSES[mood.pose]||POSES.a,true)}
+let draft=null;
+function openCloset(){draft=clone(outfit());const sw=(key,cols)=>`<div class="row">${cols.map(c=>`<button class="sw" style="background:${c}" data-cl="${key}|${c}" aria-label="${key} color"></button>`).join("")}</div>`;
+  openModal(`<h2>👗 Jinny's closet</h2><div class="closet"><div class="preview"><svg id="closetPrev" viewBox="-28 -62 56 88" width="140" height="220" aria-hidden="true"></svg></div><div>
+  <h3>Hairstyle</h3><div class="row">${CLOSET.hair.map(([k,n])=>`<button class="chip" data-cl="hair|${k}">${n}</button>`).join("")}</div>
+  <h3>Hair color</h3>${sw("hairColor",CLOSET.hairColor)}<h3>Skin</h3>${sw("skin",CLOSET.skin)}<h3>Top</h3>${sw("top",CLOSET.top)}<h3>Pants</h3>${sw("pants",CLOSET.pants)}<h3>Shoes</h3>${sw("shoes",CLOSET.shoes)}
+  <h3>Accessories</h3><div class="row">${CLOSET.acc.map(([k,n])=>`<button class="chip" data-clacc="${k}">${n}</button>`).join("")}</div></div></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button data-close>Cancel</button><button class="primary" id="closetSave">Wear it 💗</button></div>`);updateCloset()}
+function updateCloset(){const pv=$("#closetPrev");if(!pv)return;pv.innerHTML=figure(draft,POSES.cheer,false);
+  document.querySelectorAll("[data-cl]").forEach(b=>{const[k,v]=b.dataset.cl.split("|");b.classList.toggle("on",draft[k]===v)});
+  document.querySelectorAll("[data-clacc]").forEach(b=>b.classList.toggle("on",draft.acc.includes(b.dataset.clacc)))}
 function applyPose(){
   if(!document.getElementById("la"))return;
   const sleepy=mood.sleepy&&Date.now()>mood.cheerUntil;
@@ -556,7 +618,7 @@ function buildRows(){
     if(t.k==="sports")ctl=`<span class="row" id="sportPick">${SPORTS.map(s=>`<button class="chip${s===UI.sport?" on":""}" data-sport="${s}">${s}</button>`).join("")}</span><button class="chip" data-add="sports" data-v="0.5">+0.5h</button><button class="chip" data-add="sports" data-v="1">+1h</button><button class="chip" data-add="sports" data-v="2">+2h</button>`;
     if(t.k==="fun")ctl=`<input id="in-fun" placeholder="What did you do?" aria-label="Fun activity name"><button class="chip" data-add="fun" data-v="1">+1 session</button>`;
     if(t.k==="duo")ctl=`<span class="hearts" id="duoHearts"></span><button class="chip" data-add="duo" data-v="1">+1 day</button><button class="chip" data-add="duo" data-v="2">+2</button><button class="chip" data-add="duo" data-v="3">+3</button>`;
-    if(t.k==="typing")ctl=`<a class="btn chip" href="https://www.keybr.com/" target="_blank" rel="noopener">Practice on keybr ↗</a><button class="chip" data-add="typing" data-v="10">+10 min</button><button class="chip" data-add="typing" data-v="30">+30</button><input id="in-wpm" type="number" min="1" max="300" placeholder="WPM" aria-label="Words per minute" style="width:76px"><button class="chip" id="wpmBtn">Save</button>`;
+    if(t.k==="typing")ctl=`<a class="btn chip" href="https://www.keybr.com/" target="_blank" rel="noopener">keybr ↗</a><button class="chip" data-add="typing" data-v="10">+10 min</button><button class="chip" data-add="typing" data-v="30">+30</button><input id="in-wpm" type="number" min="1" max="300" placeholder="WPM" aria-label="Words per minute" style="width:76px"><button class="chip" id="wpmBtn">Save</button>`;
     if(t.k==="family")ctl=`<button class="chip" data-add="family" data-v="1">+1 call</button>`;
     return `<div class="trow panel" id="row-${t.k}">
       <div class="tname"><span class="ticon">${t.icon}</span><div><b>${t.name}</b><div class="count" id="cnt-${t.k}"></div></div></div>
@@ -687,8 +749,33 @@ function renderCal(){
 }
 
 /* ---------- notes ---------- */
-const N={editing:null};let noteSig="";
+const DEF_TAGS=["New ideas","Research","Personal"];
+const N={editing:null,tag:"New ideas",adding:false};let noteSig="";
+function noteTags(){const t=getState().noteTags;return Array.isArray(t)&&t.length?t:DEF_TAGS.slice()}
+function renderTagBar(){const tags=noteTags();if(!tags.includes(N.tag))N.tag=tags[0];
+  $("#tagBar").innerHTML=`<span class="count">Tag:</span>${tags.map(t=>`<button class="chip${t===N.tag?" on":""}" data-ntag="${esc(t)}">${esc(t)}</button>`).join("")}${N.adding?`<input id="newTag" placeholder="New tag name" maxlength="24" style="width:150px"><button class="chip" id="addTagOk">Add</button>`:`<button class="chip" id="addTagBtn">+ New tag</button>`}`;
+  if(N.adding)setTimeout(()=>{const i=$("#newTag");if(i)i.focus()},0)}
+function addTag(){const i=$("#newTag");const v=i?i.value.trim():"";N.adding=false;if(v){const tags=noteTags();const found=tags.find(t=>t.toLowerCase()===v.toLowerCase());if(!found)updateState({noteTags:[...tags,v]});N.tag=found||v;noteSig=""}renderTagBar()}
 function renderNotes(){
+  const q=$("#noteSearch").value.trim().toLowerCase();const words=q.split(/\s+/).filter(Boolean);const tags=noteTags();
+  const notes=[...store.docs.entries()].filter(([,d])=>d.kind==="note").map(([id,d])=>Object.assign({id},d,{tag:d.tag||"New ideas"})).sort((a,b)=>b.updated-a.updated);
+  const sig=q+"|"+tags.join(",")+"|"+JSON.stringify(notes.map(n=>[n.id,n.updated,n.tag]));if(sig===noteSig)return;noteSig=sig;
+  if(document.activeElement!==$("#newTag"))renderTagBar();
+  const hit=notes.filter(n=>words.every(w=>(n.text+" "+n.tag).toLowerCase().includes(w)));
+  const hl=t=>{let h=esc(t);words.forEach(w=>{const re=new RegExp("("+esc(w).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi");h=h.replace(re,"<mark>$1</mark>")});return h};
+  const card=n=>`<article class="post panel"><div class="post-meta"><span>${new Date(n.updated).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}</span><span><button class="ghost" data-editnote="${n.id}">Edit</button><button class="ghost" data-delnote="${n.id}">Delete</button></span></div><div class="post-text">${hl(n.text)}</div></article>`;
+  if(q&&!hit.length){$("#notes").innerHTML=`<p class="empty">No notes match "${esc(q)}"</p>`;return}
+  const order=[...tags,...[...new Set(notes.map(n=>n.tag))].filter(t=>!tags.includes(t))];
+  $("#notes").innerHTML=order.map(t=>{const ns=hit.filter(n=>n.tag===t);if(!ns.length&&q)return"";
+    return `<div class="tag-sec"><h3>${esc(t)} <span class="pill">${ns.length}</span>${!notes.some(n=>n.tag===t)?`<button class="ghost" data-deltag="${esc(t)}" style="min-height:28px;font-size:12.5px">Remove tag</button>`:""}</h3>${ns.length?`<div class="stack" style="margin-top:0">${ns.map(card).join("")}</div>`:`<p class="empty" style="padding:10px 14px">No notes with this tag yet</p>`}</div>`}).join("");
+}
+function resetNoteForm(){N.editing=null;$("#nText").value="";aiUndo("nText");$("#noteTitle").textContent="Notes";$("#noteSave").textContent="Save note";$("#cancelNoteBtn").hidden=true}
+function saveNote(){const text=$("#nText").value.trim();if(!text){toast("Write a note first");return}
+  if(N.editing){const d=clone(getDoc(N.editing));if(d){d.text=text;d.tag=N.tag;d.updated=Date.now();writeDoc(N.editing,d)}toast("Note updated")}
+  else{writeDoc("n-"+uid(),{kind:"note",text,tag:N.tag,created:Date.now(),updated:Date.now()});Sound.pop();toast(`Saved to ${N.tag} 💡`)}
+  resetNoteForm()}
+function editNote(id){const d=getDoc(id);if(!d)return;N.editing=id;N.tag=d.tag||"New ideas";renderTagBar();$("#nText").value=d.text;$("#noteTitle").textContent="Edit note";$("#noteSave").textContent="Save changes";$("#cancelNoteBtn").hidden=false;$("#nText").focus();window.scrollTo({top:0,behavior:"smooth"})}
+function renderNotesOld(){
   const q=$("#noteSearch").value.trim().toLowerCase();const words=q.split(/\s+/).filter(Boolean);
   const notes=[...store.docs.entries()].filter(([,d])=>d.kind==="note").map(([id,d])=>Object.assign({id},d)).sort((a,b)=>b.updated-a.updated);
   const sig=q+"|"+JSON.stringify(notes.map(n=>[n.id,n.updated]));if(sig===noteSig)return;noteSig=sig;
@@ -697,11 +784,11 @@ function renderNotes(){
   $("#notes").innerHTML=!notes.length?`<p class="empty">Your ideas will live here. Write anything, then search them anytime 💡</p>`:!hit.length?`<p class="empty">No ideas match "${esc(q)}"</p>`:
     hit.map(n=>`<article class="post panel"><div class="post-meta"><span>${new Date(n.updated).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}</span><span><button class="ghost" data-editnote="${n.id}">Edit</button><button class="ghost" data-delnote="${n.id}">Delete</button></span></div><div class="post-text">${hl(n.text)}</div></article>`).join("");
 }
-function saveNote(){const text=$("#nText").value.trim();if(!text){toast("Write an idea first");return}
+function saveNoteOld(){const text=$("#nText").value.trim();if(!text){toast("Write an idea first");return}
   if(N.editing){const d=clone(getDoc(N.editing));if(d){d.text=text;d.updated=Date.now();writeDoc(N.editing,d)}toast("Note updated")}
   else{writeDoc("n-"+uid(),{kind:"note",text,created:Date.now(),updated:Date.now()});Sound.pop();toast("Idea saved 💡")}
   N.editing=null;$("#nText").value="";aiUndo("nText");$("#noteTitle").textContent="New idea";$("#noteSave").textContent="Save note";$("#cancelNoteBtn").hidden=true}
-function editNote(id){const d=getDoc(id);if(!d)return;N.editing=id;$("#nText").value=d.text;$("#noteTitle").textContent="Edit idea";$("#noteSave").textContent="Save changes";$("#cancelNoteBtn").hidden=false;$("#nText").focus();window.scrollTo({top:0,behavior:"smooth"})}
+function editNoteOld(id){const d=getDoc(id);if(!d)return;N.editing=id;$("#nText").value=d.text;$("#noteTitle").textContent="Edit idea";$("#noteSave").textContent="Save changes";$("#cancelNoteBtn").hidden=false;$("#nText").focus();window.scrollTo({top:0,behavior:"smooth"})}
 
 /* ---------- history ---------- */
 function renderHistory(C){
@@ -762,7 +849,7 @@ let rq=false;
 function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
   const C=compute();mood.sleepy=C.lastLogTs>0&&Date.now()-C.lastLogTs>48*3600e3;
-  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);renderWall(C);syncLabel();renderComposer();
+  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
   $("#muteBtn").textContent=getState().mute?"🔇":"🔊";
   if(store.ready)checkLevel(C);
 }
@@ -817,16 +904,24 @@ document.addEventListener("click",e=>{
   if(d.delpost){openModal(`<h2>Delete this post?</h2><p class="count" style="margin-bottom:14px">The text and its attachments will be removed for good.</p><div class="row" style="justify-content:flex-end"><button data-close>Keep it</button><button class="primary" data-confirmdel="${d.delpost}">Delete post</button></div>`);return}
   if(d.confirmdel){const doc=getDoc(d.confirmdel);closeModal();if(doc){deleteDoc(d.confirmdel);deletePostFiles(doc);toast("Post deleted")}return}
   if(b.id==="noteSave")return saveNote();
-  if(b.id==="cancelNoteBtn"){N.editing=null;$("#nText").value="";$("#noteTitle").textContent="New idea";$("#noteSave").textContent="Save note";b.hidden=true;return}
+  if(b.id==="cancelNoteBtn"){N.editing=null;$("#nText").value="";$("#noteTitle").textContent="Notes";$("#noteSave").textContent="Save note";b.hidden=true;aiUndo("nText");return}
   if(d.editnote)return editNote(d.editnote);
   if(d.delnote){openModal(`<h2>Delete this idea?</h2><div class="row" style="justify-content:flex-end;margin-top:12px"><button data-close>Keep it</button><button class="primary" data-confirmnote="${d.delnote}">Delete</button></div>`);return}
   if(d.confirmnote){deleteDoc(d.confirmnote);closeModal();toast("Idea deleted");return}
   if(b.id==="shareBtn"){const C=compute();shareModal(C,`Climbing ${gradeInfo(C.grade).label}`,"",false);return}
+  if(b.id==="closetBtn")return openCloset();
+  if(d.cl){const[k,v]=d.cl.split("|");draft[k]=v;Sound.pop();updateCloset();return}
+  if(d.clacc){const i=draft.acc.indexOf(d.clacc);if(i>=0)draft.acc.splice(i,1);else draft.acc.push(d.clacc);Sound.pop();updateCloset();return}
+  if(b.id==="closetSave"){updateState({outfit:draft});closeModal();Sound.cheer();setTimeout(cheer,120);toast("New look saved 💗");return}
+  if(d.ntag){N.tag=d.ntag;renderTagBar();return}
+  if(b.id==="addTagBtn"){N.adding=true;renderTagBar();return}
+  if(b.id==="addTagOk")return addTag();
+  if(d.deltag){updateState({noteTags:noteTags().filter(t=>t!==d.deltag)});noteSig="";return}
   if(b.id==="authBtn"||b.id==="bannerSignIn")return authClick();
 });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&$("#modalRoot").innerHTML)closeModal();
-  if(e.key==="Enter"&&e.target.matches("input")){const id=e.target.id;if(id==="newList")addList();else if(id.startsWith("ni-"))addItem(id.slice(3));else if(id==="in-wpm")$("#wpmBtn").click();else if(id==="in-fun")document.querySelector('[data-add="fun"]').click();else if(id==="moodText")saveMood();else if(id.startsWith("g-"))saveGoals()}
+  if(e.key==="Enter"&&e.target.matches("input")){const id=e.target.id;if(id==="newList")addList();else if(id.startsWith("ni-"))addItem(id.slice(3));else if(id==="in-wpm")$("#wpmBtn").click();else if(id==="in-fun")document.querySelector('[data-add="fun"]').click();else if(id==="moodText")saveMood();else if(id==="newTag")addTag();else if(id.startsWith("g-"))saveGoals()}
 });
 $("#fileInput").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";uploadFiles(f)});
 $("#noteSearch").addEventListener("input",()=>renderNotes());
