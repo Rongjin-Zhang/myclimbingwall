@@ -522,7 +522,7 @@ function figureOld(o,p,ids){
   if(o.hair==="bob")back=`<path d="M-11 -38 Q-12.5 -30 -10.5 -25 Q0 -22 10.5 -25 Q12.5 -30 11 -38 Q0 -50 -11 -38Z" fill="${hc}"/>`;
   if(o.hair==="ponytail")back=`<path class="ptail" d="M6 -43 Q20 -40 17 -24 Q13 -31 7 -36Z" fill="${hc}"/>`;
   if(o.hair==="pigtails")back=`<path class="ptail" d="M8 -40 Q19 -36 16 -26 Q13 -32 8 -35Z" fill="${hc}"/><path class="ptail" style="animation-delay:.5s" d="M-8 -40 Q-19 -36 -16 -26 Q-13 -32 -8 -35Z" fill="${hc}"/>`;
-  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="#F27BA6"/>`).join("");
+  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="${shade(hc,-.35)}"/>`).join("");
   if(o.hair==="bun")back=`<circle cx="0" cy="-48.5" r="5.2" fill="${hc}"/><circle cx="-1.5" cy="-50" r="1.6" fill="${shade(hc,.25)}" opacity=".6"/>`;
   let front=`<path d="M-9.6 -36 Q-10 -47 0 -47 Q10 -47 9.6 -36 Q8 -41 4 -42.5 Q1 -39.5 -3 -42 Q-7 -41 -9.6 -36Z" fill="${hc}"/>`;
   if(o.hair==="long"||o.hair==="bob"){const e=o.hair==="bob"?-29:-26;front+=`<path d="M-9.4 -38 Q-11.2 -31 -9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/><path d="M9.4 -38 Q11.2 -31 9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/>`}
@@ -578,7 +578,7 @@ function figure(o,p,ids){
   if(o.hair==="bob")back=`<path d="M-11 -38 Q-12.5 -30 -10.5 -25 Q0 -22 10.5 -25 Q12.5 -30 11 -38 Q0 -50 -11 -38Z" fill="${hc}"/>`;
   if(o.hair==="ponytail")back=`<path class="ptail" d="M6 -43 Q20 -40 17 -24 Q13 -31 7 -36Z" fill="${hc}"/>`;
   if(o.hair==="pigtails")back=`<path class="ptail" d="M8 -40 Q19 -36 16 -26 Q13 -32 8 -35Z" fill="${hc}"/><path class="ptail" style="animation-delay:.5s" d="M-8 -40 Q-19 -36 -16 -26 Q-13 -32 -8 -35Z" fill="${hc}"/>`;
-  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="#F27BA6"/>`).join("");
+  if(o.hair==="braids")back=[-1,1].map(s=>`<g fill="${hc}" stroke="${shade(hc,-.3)}" stroke-width=".6">${[0,1,2,3].map(i=>`<ellipse cx="${s*(9.6-i*.3)}" cy="${-32+i*4.2}" rx="2.4" ry="2.6"/>`).join("")}</g><circle cx="${s*8.7}" cy="-16" r="1.3" fill="${shade(hc,-.35)}"/>`).join("");
   if(o.hair==="bun")back=`<circle cx="0" cy="-48.5" r="5.2" fill="${hc}"/><circle cx="-1.5" cy="-50" r="1.6" fill="${shade(hc,.25)}" opacity=".6"/>`;
   let front=`<path d="M-9.6 -36 Q-10 -47 0 -47 Q10 -47 9.6 -36 Q8 -41 4 -42.5 Q1 -39.5 -3 -42 Q-7 -41 -9.6 -36Z" fill="${hc}"/>`;
   if(o.hair==="long"||o.hair==="bob"){const e=o.hair==="bob"?-29:-26;front+=`<path d="M-9.4 -38 Q-11.2 -31 -9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/><path d="M9.4 -38 Q11.2 -31 9.6 ${e}" fill="none" stroke="${hc}" stroke-width="2.6" stroke-linecap="round"/>`}
