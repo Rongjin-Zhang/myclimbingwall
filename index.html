@@ -559,7 +559,7 @@ const PAL_CLASSIC=["#8A5BE0","#F27BA6","#B83E6C","#FFFFFF","#2A2A2E","#4A6FA5","
 const PAL_PASTEL=["#FFD1DC","#FFE5B4","#FFF5BA","#D7F5D0","#C9E4DE","#D4F0FC","#E6E6FA","#F3D1F4"];
 const PAL_MONET=["#A7C4D9","#6C8EBF","#9DB4C0","#B5C99A","#7A9E7E","#CDB4DB","#D8A7B1","#E8C1C5","#F2D0A9","#F4E1A6"];
 const CLOTH=[PAL_CLASSIC,PAL_PASTEL,PAL_MONET];
-const OUTFIT_DEF={v:2,hair:"long",hairColor:"#5A3825",skin:"#F5CDB3",top:"#8A5BE0",pants:"#F27BA6",shoes:"#B83E6C",acc:["clip","chalkbag"],accColor:{}};
+const OUTFIT_DEF={v:2,hair:"braids",hairColor:"#2A2025",skin:"#F5CDB3",top:"#A7C4D9",pants:"#6C8EBF",shoes:"#B5C99A",acc:["headband","harness","chalkbag"],accColor:{headband:"#D8A7B1",harness:"#7A9E7E",chalkbag:"#F4E1A6"}};
 const ACC_DEF={clip:"#F27BA6",bow:"#FF7EB0",headband:"#F27BA6",glasses:"#5A2E44",cap:"#F27BA6",earrings:"#FFD84D",harness:"#8A5BE0",chalkbag:"#FFD3E3"};
 const CLOSET={hair:[["long","Long"],["ponytail","Ponytail"],["bun","Bun"],["bob","Bob"],["braids","Braids"],["pigtails","Pigtails"],["short","Short"]],
   hairColor:[["#5A3825","#2A2025","#8B5A3C","#E3B65E","#B5452E"],["#F49AC1","#B9A0E8","#A7C4D9","#B5C99A","#F7F3EE"]],
@@ -613,7 +613,7 @@ function openCloset(){draft=clone(outfit());UI.accOpen=null;
   <p class="count" style="margin-top:4px">Classic, pastel, and Monet colors 🎨</p>
   <h3>Accessories</h3><p class="count" style="margin:-2px 0 8px">Tap a name to wear or take it off, tap its dot to change the color</p>
   <div class="acc-list">${CLOSET.acc.map(([k,n])=>`<div class="acc-row"><button class="chip" data-clacc="${k}">${n}</button><button class="accdot" data-accpick="${k}" aria-label="${n} color"></button></div><div class="acc-sw" id="accsw-${k}" hidden>${swatches("cla",k,CLOSET.accColors)}</div>`).join("")}</div></div></div>
-  <div class="row" style="justify-content:flex-end;margin-top:16px"><button data-close>Cancel</button><button class="primary" id="closetSave">Wear it 💗</button></div>`);updateCloset()}
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="ghost" id="closetReset" style="margin-right:auto">↺ Default look</button><button data-close>Cancel</button><button class="primary" id="closetSave">Wear it 💗</button></div>`);updateCloset()}
 function updateCloset(){const pv=$("#closetPrev");if(!pv)return;pv.innerHTML=figure(draft,POSES.cheer,false);
   document.querySelectorAll("[data-cl]").forEach(b=>{const[k,v]=b.dataset.cl.split("|");b.classList.toggle("on",draft[k]===v)});
   document.querySelectorAll("[data-clacc]").forEach(b=>b.classList.toggle("on",draft.acc.includes(b.dataset.clacc)));
@@ -1114,6 +1114,7 @@ document.addEventListener("click",e=>{
   if(d.cla){const[k,v]=d.cla.split("|");draft.accColor[k]=v;if(!draft.acc.includes(k))draft.acc.push(k);Sound.pop();updateCloset();return}
   if(d.cl){const[k,v]=d.cl.split("|");draft[k]=v;Sound.pop();updateCloset();return}
   if(d.clacc){const i=draft.acc.indexOf(d.clacc);if(i>=0)draft.acc.splice(i,1);else draft.acc.push(d.clacc);Sound.pop();updateCloset();return}
+  if(b.id==="closetReset"){draft=clone(OUTFIT_DEF);draft.accColor=Object.assign({},ACC_DEF,OUTFIT_DEF.accColor);Sound.pop();updateCloset();return}
   if(b.id==="closetSave"){updateState({outfit:draft});closeModal();Sound.cheer();setTimeout(cheer,120);toast("New look saved 💗");return}
   if(d.ntag){N.tag=d.ntag;renderTagBar();return}
   if(b.id==="addTagBtn"){N.adding=true;renderTagBar();return}
