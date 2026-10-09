@@ -130,6 +130,12 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
 .cal-day svg{width:62%;height:62%}
 .cal-day.today{outline:2px solid var(--pink)}
 .cal-day.blank{background:transparent}
+.cal-day:hover{outline:2px solid var(--pink-soft)}
+.cal-day.future{opacity:.45;cursor:default}
+.date-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-row input{flex:0 0 auto}
+.cal-grid{max-width:560px;margin:0 auto}
+.cal-head{max-width:560px;margin-left:auto;margin-right:auto}
 .cal-day .dn{position:absolute;top:2px;left:5px;font-size:9.5px}
 .weeks{display:flex;flex-direction:column;gap:10px}
 .week{padding:12px 16px}
@@ -246,6 +252,7 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
     <section id="tab-journal" hidden>
       <div class="sec-head"><h2 id="composerTitle">New journal post</h2><span class="weeklabel">+5 XP for your first post each day</span></div>
       <div class="composer panel">
+        <div class="date-row"><label class="count" for="jDate">📅 Date</label><input type="date" id="jDate"><span class="count" id="jDateHint"></span></div>
         <textarea id="jText" placeholder="Best moment of the week was..." aria-label="Journal text"></textarea>
         <div class="files" id="jFiles"></div>
         <div class="row">
@@ -258,7 +265,7 @@ mark{background:#FFD3E3;color:inherit;border-radius:4px;padding:0 2px}
           <button class="primary" id="postBtn">Post</button>
         </div>
       </div>
-      <div class="sec-head"><h2>Mood calendar</h2></div>
+      <div class="sec-head"><h2>Mood calendar</h2><span class="weeklabel">Tap any day to add or change its mood</span></div>
       <div class="cal panel" id="cal"></div>
       <div class="sec-head"><h2>My journal</h2></div>
       <div class="stack" id="posts" style="margin-top:0"></div>
@@ -790,8 +797,8 @@ function renderPosts(C){
   const moods=[...store.docs.entries()].filter(([,d])=>d.kind==="mood").map(([id,d])=>Object.assign({id,created:parseYmd(d.d).getTime()+86399000,isMood:true},d));
   const items=[...C.posts,...moods].sort((a,b)=>b.created-a.created);
   const sig=JSON.stringify(items.map(p=>[p.id,p.updated]));if(sig===postSig)return;postSig=sig;
-  $("#posts").innerHTML=items.length?items.map(p=>p.isMood?`<article class="post panel mood-post">${faceSvg(p.m)}<div><div class="post-meta" style="margin:0"><span>${parseYmd(p.d).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}, feeling ${MOODS[p.m].n.toLowerCase()}</span></div>${p.c?`<div class="post-text">${esc(p.c)}</div>`:""}</div></article>`:
-   `<article class="post panel"><div class="post-meta"><span>${new Date(p.created).toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${p.updated&&p.updated-p.created>60000?", edited":""}${C.firstPostOfDay.has(p.id)?` <span class="pill good">+5 XP</span>`:""}</span><span><button class="ghost" data-editpost="${p.id}">Edit</button><button class="ghost" data-delpost="${p.id}">Delete</button></span></div><div class="post-text">${esc(p.text)}</div>${(p.files||[]).length?`<div class="post-media">${p.files.map(f=>f.type&&f.type.startsWith("image/")?`<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" loading="lazy"></a>`:`<a class="file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}</article>`).join(""):`<p class="empty">Your posts and daily moods will appear here 💗</p>`;
+  $("#posts").innerHTML=items.length?items.map(p=>p.isMood?`<article class="post panel mood-post">${faceSvg(p.m)}<div style="flex:1"><div class="post-meta" style="margin:0"><span>${parseYmd(p.d).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}, feeling ${MOODS[p.m].n.toLowerCase()}</span><button class="ghost" data-editmood="${p.d}">Edit</button></div>${p.c?`<div class="post-text">${esc(p.c)}</div>`:""}</div></article>`:
+   `<article class="post panel"><div class="post-meta"><span>${new Date(p.created).toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${p.edited?", edited":""}${C.firstPostOfDay.has(p.id)?` <span class="pill good">+5 XP</span>`:""}</span><span><button class="ghost" data-editpost="${p.id}">Edit</button><button class="ghost" data-delpost="${p.id}">Delete</button></span></div><div class="post-text">${esc(p.text)}</div>${(p.files||[]).length?`<div class="post-media">${p.files.map(f=>f.type&&f.type.startsWith("image/")?`<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" loading="lazy"></a>`:`<a class="file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}</article>`).join(""):`<p class="empty">Your posts and daily moods will appear here 💗</p>`;
 }
 async function uploadFiles(list){
   if(!FB.user){toast("Sign in first to attach files");return}
@@ -801,21 +808,36 @@ async function uploadFiles(list){
     catch(e){toast(`Couldn't upload ${file.name}. Check Storage is set up in Firebase.`);console.warn(e)}
     J.uploading--;renderComposer()}
 }
-function savePost(){
+function savePostOld(){
   const text=$("#jText").value.trim();if(!text&&!J.files.length){toast("Write something or attach a file first");return}if(J.uploading){toast("Wait for uploads to finish");return}
   if(J.editing){const d=clone(getDoc(J.editing));if(d){d.text=text;d.files=J.files;d.updated=Date.now();writeDoc(J.editing,d)}toast("Post updated")}
   else{const before=compute();writeDoc("j-"+uid(),{kind:"journal",text,files:J.files,created:Date.now(),updated:Date.now()});const after=compute();Sound.pop();toast(after.total>before.total?"Posted, +5 XP 💗":"Posted 💗")}
   J.editing=null;J.files=[];$("#jText").value="";aiUndo("jText");renderComposer();
 }
-function editPost(id){const d=getDoc(id);if(!d)return;J.editing=id;J.files=clone(d.files||[]);$("#jText").value=d.text||"";renderComposer();$("#jText").focus();window.scrollTo({top:0,behavior:"smooth"})}
+function editPostOld(id){const d=getDoc(id);if(!d)return;J.editing=id;J.files=clone(d.files||[]);$("#jText").value=d.text||"";renderComposer();$("#jText").focus();window.scrollTo({top:0,behavior:"smooth"})}
 async function deletePostFiles(d){if(!FB.storage)return;for(const f of d.files||[]){if(f.path)try{await FB.mods.storage.deleteObject(FB.mods.storage.ref(FB.storage,f.path))}catch(e){}}}
+
+function whenFor(day,base){const b=new Date(base||Date.now());if(ymd(b)===day)return b.getTime();const d=parseYmd(day);d.setHours(b.getHours(),b.getMinutes(),b.getSeconds());return d.getTime()}
+function syncDateHint(){const inp=$("#jDate");const today=ymd(new Date());inp.max=today;if(!inp.value)inp.value=today;$("#jDateHint").textContent=inp.value===today?"Today":parseYmd(inp.value).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}
+function savePost(){
+  const text=$("#jText").value.trim();if(!text&&!J.files.length){toast("Write something or attach a file first");return}if(J.uploading){toast("Wait for uploads to finish");return}
+  const today=ymd(new Date());const day=$("#jDate").value||today;if(day>today){toast("Pick today or a past date");return}
+  if(J.editing){const d=clone(getDoc(J.editing));if(d){d.text=text;d.files=J.files;d.created=whenFor(day,d.created);d.updated=Date.now();d.edited=true;writeDoc(J.editing,d)}toast("Post updated")}
+  else{const before=compute();writeDoc("j-"+uid(),{kind:"journal",text,files:J.files,created:whenFor(day),updated:Date.now()});const after=compute();Sound.pop();toast((after.total>before.total?"Posted, +5 XP 💗":"Posted 💗")+(day!==today?` for ${md(day)}`:""))}
+  J.editing=null;J.files=[];$("#jText").value="";$("#jDate").value=today;aiUndo("jText");renderComposer();syncDateHint();
+}
+function editPost(id){const d=getDoc(id);if(!d)return;J.editing=id;J.files=clone(d.files||[]);$("#jText").value=d.text||"";$("#jDate").value=ymd(new Date(d.created));syncDateHint();renderComposer();$("#jText").focus();window.scrollTo({top:0,behavior:"smooth"})}
+function openMoodDay(day){UI.mday=day;const e=getDoc("m-"+day);UI.mdayMood=e?e.m:0;
+  openModal(`<h2>${parseYmd(day).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}</h2><p class="count">How were you feeling this day?</p><div class="mood-faces" id="mdFaces"></div><input id="mdText" placeholder="One line about this day..." maxlength="140" style="width:100%" value="${esc(e&&e.c||"")}" aria-label="Mood note"><div class="row" style="justify-content:space-between;margin-top:14px"><span class="row">${e?`<button class="ghost" id="mdDel">Remove mood</button>`:""}<button class="ghost" id="mdWrite">✏️ Write a post for this day</button></span><button class="primary" id="mdSave">Save</button></div>`);renderMdFaces()}
+function renderMdFaces(){$("#mdFaces").innerHTML=[5,4,3,2,1].map(i=>`<button class="face${UI.mdayMood===i?" on":""}" data-mdmood="${i}" aria-label="${MOODS[i].n}" title="${MOODS[i].n}">${faceSvg(i)}</button>`).join("")}
+function saveMoodDay(){if(!UI.mdayMood){toast("Pick a face first");return}const day=UI.mday;const prev=getDoc("m-"+day);writeDoc("m-"+day,{kind:"mood",d:day,m:UI.mdayMood,c:$("#mdText").value.trim(),ts:prev?prev.ts:Date.now(),updated:Date.now()});closeModal();Sound.pop();toast(`Mood saved for ${md(day)} 💗`)}
 
 /* ---------- mood calendar ---------- */
 function renderCal(){
   const now=new Date();if(!UI.calMonth)UI.calMonth=new Date(now.getFullYear(),now.getMonth(),1);
   const m=UI.calMonth;const first=new Date(m.getFullYear(),m.getMonth(),1);const days=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();const lead=(first.getDay()+6)%7;const today=ymd(now);
   let cells="";for(let i=0;i<lead;i++)cells+=`<div class="cal-day blank"></div>`;
-  for(let d=1;d<=days;d++){const key=ymd(new Date(m.getFullYear(),m.getMonth(),d));const e=getDoc("m-"+key);cells+=`<div class="cal-day${key===today?" today":""}" title="${e?esc(MOODS[e.m].n+(e.c?": "+e.c:"")):""}"><span class="dn">${d}</span>${e?faceSvg(e.m):""}</div>`}
+  for(let d=1;d<=days;d++){const key=ymd(new Date(m.getFullYear(),m.getMonth(),d));const e=getDoc("m-"+key);cells+=`<button class="cal-day${key===today?" today":""}${key>today?" future":""}" data-calday="${key}" title="${e?esc(MOODS[e.m].n+(e.c?": "+e.c:"")):"Add mood"}"><span class="dn">${d}</span>${e?faceSvg(e.m):""}</button>`}
   $("#cal").innerHTML=`<div class="cal-head"><button class="ghost" data-cal="-1" aria-label="Previous month">‹</button><b>${m.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</b><button class="ghost" data-cal="1" aria-label="Next month">›</button></div><div class="cal-grid">${["M","T","W","T","F","S","S"].map(x=>`<div class="cal-dow">${x}</div>`).join("")}${cells}</div>`;
 }
 
@@ -970,7 +992,13 @@ document.addEventListener("click",e=>{
   if(b.id==="attachBtn"){if(!FB.user){toast("Sign in first to attach files");return}return $("#fileInput").click()}
   if(d.rmfile!==undefined){J.files.splice(Number(d.rmfile),1);renderComposer();return}
   if(b.id==="postBtn")return savePost();
-  if(b.id==="cancelEditBtn"){J.editing=null;J.files=[];$("#jText").value="";renderComposer();return}
+  if(b.id==="cancelEditBtn"){J.editing=null;J.files=[];$("#jText").value="";$("#jDate").value=ymd(new Date());syncDateHint();renderComposer();return}
+  if(d.calday){if(d.calday>ymd(new Date())){toast("That day hasn't happened yet 🌷");return}return openMoodDay(d.calday)}
+  if(d.editmood)return openMoodDay(d.editmood);
+  if(d.mdmood){UI.mdayMood=Number(d.mdmood);Sound.pop();renderMdFaces();return}
+  if(b.id==="mdSave")return saveMoodDay();
+  if(b.id==="mdDel"){deleteDoc("m-"+UI.mday);closeModal();toast("Mood removed");return}
+  if(b.id==="mdWrite"){const day=UI.mday;closeModal();J.editing=null;$("#jDate").value=day;syncDateHint();renderComposer();window.scrollTo({top:0,behavior:"smooth"});$("#jText").focus();return}
   if(d.editpost)return editPost(d.editpost);
   if(d.delpost){openModal(`<h2>Delete this post?</h2><p class="count" style="margin-bottom:14px">The text and its attachments will be removed for good.</p><div class="row" style="justify-content:flex-end"><button data-close>Keep it</button><button class="primary" data-confirmdel="${d.delpost}">Delete post</button></div>`);return}
   if(d.confirmdel){const doc=getDoc(d.confirmdel);closeModal();if(doc){deleteDoc(d.confirmdel);deletePostFiles(doc);toast("Post deleted")}return}
@@ -994,10 +1022,12 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&$("#modalRoot").innerHTML)closeModal();
-  if(e.key==="Enter"&&e.target.matches("input")){const id=e.target.id;if(id==="newList")addList();else if(id.startsWith("ni-"))addItem(id.slice(3));else if(id==="in-wpm")$("#wpmBtn").click();else if(id==="in-fun")document.querySelector('[data-add="fun"]').click();else if(id==="moodText")saveMood();else if(id==="newTag")addTag();else if(id.startsWith("g-"))saveGoals()}
+  if(e.key==="Enter"&&e.target.matches("input")){const id=e.target.id;if(id==="newList")addList();else if(id.startsWith("ni-"))addItem(id.slice(3));else if(id==="in-wpm")$("#wpmBtn").click();else if(id==="in-fun")document.querySelector('[data-add="fun"]').click();else if(id==="moodText")saveMood();else if(id==="newTag")addTag();else if(id==="mdText")saveMoodDay();else if(id.startsWith("g-"))saveGoals()}
 });
 $("#fileInput").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";uploadFiles(f)});
 $("#noteSearch").addEventListener("input",()=>renderNotes());
+$("#jDate").addEventListener("change",()=>{if($("#jDate").value>ymd(new Date()))$("#jDate").value=ymd(new Date());syncDateHint()});
+syncDateHint();
 window.matchMedia("(max-width:760px)").addEventListener("change",()=>{wallState.sig="";scheduleRender()});
 setInterval(()=>{const C=compute();if(C.cur!==(window.__cw||C.cur)){scheduleRender();checkRecap()}window.__cw=C.cur},60000);
 
