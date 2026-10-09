@@ -11,10 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --surface:#FFFFFF;--surface2:#FFF1F6;--ink:#5A2E44;--muted:#A7798F;--line:#F8D9E5;
-  --pink:#F27BA6;--pink-deep:#E0568A;--pink-soft:#FFD3E3;--pink-pale:#FFF5F9;--rose:#D9536F;
-  --g1:#FFF8FB;--g2:#FFEAF2;--g3:#FFDCE9;--btn1:#FF94BA;--btn2:#F06A9C;--bar1:#FFB3CE;--sh:226,104,150;--pb:#FBE3EC;
-  --w1:#FFF8FB;--w2:#FDEAF1;--w3:#F9DCE7;--wd:#E9C2D2;--wl:#F3CFDD;
+  --surface:#FFFFFF;--surface2:#EEF3F1;--ink:#34454F;--muted:#7E8F93;--line:#D9E2DF;
+  --pink:#8FB3C9;--pink-deep:#5F8AA6;--pink-soft:#DCE8E4;--pink-pale:#F6F9F7;--rose:#D9536F;
+  --g1:#F8FAF6;--g2:#E9F0EE;--g3:#E4E1EE;--btn1:#A9C6D6;--btn2:#7C9FB8;--bar1:#C9D9C4;--sh:95,138,166;--pb:#E3EAE7;
+  --w1:#F8FAF6;--w2:#EAF1EC;--w3:#E3E2EE;--wd:#C3CEC9;--wl:#D9E2DF;
   --heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z' fill='black'/%3E%3C/svg%3E");
   --shadow:0 8px 24px rgba(var(--sh),.13);
   --head:"Fredoka","Nunito",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -931,7 +931,7 @@ function applyTheme(k){applyThemeDay(k);const de=document.documentElement;de.cla
   const t=THEMES[k]||THEMES.pink,n=NIGHT[k]||NIGHT.pink;
   const v={"--surface":n[2],"--surface2":n[3],"--line":n[4],"--pb":n[4],"--ink":"#F2EAF0","--muted":"#B4A7AF","--pink-pale":n[3],"--pink-soft":mixHex(n[2],t.a,.35),"--g1":n[0],"--g2":n[1],"--g3":mixHex(n[1],t.a,.14),"--w1":n[1],"--w2":n[2],"--w3":mixHex(n[2],t.a,.1),"--wd":n[4],"--wl":n[4],"--bar1":mixHex(n[2],t.a,.5),"--sh":"0,0,0"};
   for(const x in v)st.setProperty(x,v[x])}
-function openTheme(){const cur=getState().theme||"pink";openModal(`<h2>🎨 Theme</h2><p class="count" style="margin-bottom:12px">Pick a color for your whole wall</p><div class="themes">${Object.entries(THEMES).map(([k,t])=>`<button class="theme-card${k===cur?" on":""}" data-themepick="${k}"><span class="theme-sw" style="background:linear-gradient(135deg,${t.g[0]},${t.g[2]})"><i style="background:linear-gradient(135deg,${t.b[0]},${t.b[1]})"></i><i style="background:${t.as}"></i><i style="background:${t.ink}"></i></span>${t.name}</button>`).join("")}</div>`)}
+function openTheme(){const cur=getState().theme||"monet";openModal(`<h2>🎨 Theme</h2><p class="count" style="margin-bottom:12px">Pick a color for your whole wall</p><div class="themes">${Object.entries(THEMES).map(([k,t])=>`<button class="theme-card${k===cur?" on":""}" data-themepick="${k}"><span class="theme-sw" style="background:linear-gradient(135deg,${t.g[0]},${t.g[2]})"><i style="background:linear-gradient(135deg,${t.b[0]},${t.b[1]})"></i><i style="background:${t.as}"></i><i style="background:${t.ink}"></i></span>${t.name}</button>`).join("")}</div>`)}
 
 /* ---------- record & summarize ---------- */
 const REC={mr:null,chunks:[],start:0,timer:null,blob:null,mime:"",event:"",dur:0,busy:false};
@@ -1037,7 +1037,7 @@ let rq=false;
 function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
   const C=compute();mood.sleepy=C.lastLogTs>0&&Date.now()-C.lastLogTs>48*3600e3;
-  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const sn=getState().night;if(sn!==undefined&&!!sn!==NIGHT_ON){NIGHT_ON=!!sn;UI.theme=null;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}}$("#nightBtn").textContent=NIGHT_ON?"☀️":"🌙";const th=getState().theme||"pink";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
+  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const sn=getState().night;if(sn!==undefined&&!!sn!==NIGHT_ON){NIGHT_ON=!!sn;UI.theme=null;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}}$("#nightBtn").textContent=NIGHT_ON?"☀️":"🌙";const th=getState().theme||"monet";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
   $("#muteBtn").textContent=getState().mute?"🔇":"🔊";
   if(store.ready)checkLevel(C);
 }
@@ -1104,7 +1104,7 @@ document.addEventListener("click",e=>{
   if(d.confirmnote){deleteDoc(d.confirmnote);closeModal();toast("Idea deleted");return}
   if(b.id==="shareBtn"){const C=compute();shareModal(C,`Climbing ${gradeInfo(C.grade).label}`,"",false);return}
   if(b.id==="themeBtn")return openTheme();
-  if(b.id==="nightBtn"){NIGHT_ON=!NIGHT_ON;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}applyTheme(getState().theme||"pink");UI.theme=getState().theme||"pink";updateState({night:NIGHT_ON});Sound.pop();return}
+  if(b.id==="nightBtn"){NIGHT_ON=!NIGHT_ON;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}applyTheme(getState().theme||"monet");UI.theme=getState().theme||"monet";updateState({night:NIGHT_ON});Sound.pop();return}
   if(d.themepick){applyTheme(d.themepick);UI.theme=d.themepick;try{localStorage.setItem("jinny-theme",d.themepick)}catch(e){}updateState({theme:d.themepick});Sound.pop();openTheme();return}
   if(b.id==="recBtn"){if(REC.mr)stopRec();else startRec();return}
   if(b.id==="recRetry")return summarizeRec();
@@ -1170,7 +1170,7 @@ async function initFirebase(){
 }
 
 /* ---------- boot ---------- */
-try{NIGHT_ON=localStorage.getItem("jinny-night")==="1";applyTheme(localStorage.getItem("jinny-theme")||"pink")}catch(e){}buildRows();store.docs=loadLocalDocs();store.ready=true;render();checkRecap();initFirebase();
+try{NIGHT_ON=localStorage.getItem("jinny-night")==="1";applyTheme(localStorage.getItem("jinny-theme")||"monet")}catch(e){}buildRows();store.docs=loadLocalDocs();store.ready=true;render();checkRecap();initFirebase();
 </script>
 </body>
 </html>
