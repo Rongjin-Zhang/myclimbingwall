@@ -138,6 +138,16 @@ mark{background:var(--pink-soft);color:inherit;border-radius:4px;padding:0 2px}
 .cal-day svg{width:62%;height:62%}
 .cal-day.today{outline:2px solid var(--pink)}
 .cal-day.blank{background:transparent}
+.ev{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px}
+.ev-date{display:flex;flex-direction:column;align-items:center;background:var(--pink-pale);border-radius:16px;padding:6px 0;font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.ev-date b{font-family:var(--head);font-size:24px;color:var(--ink);line-height:1.1;letter-spacing:0}
+.ev-title{font-family:var(--head);font-size:17px;font-weight:600;line-height:1.3}
+.ev-note{font-size:13px;color:var(--muted);margin-top:3px}
+.ev-act{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ev-act .ghost{font-size:18px;min-height:32px;padding:2px 8px}
+#events .ev{margin-bottom:10px}
+.ev-month{font-family:var(--head);font-size:15px;font-weight:600;color:var(--muted);margin:16px 4px 8px;text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:560px){.ev{grid-template-columns:54px minmax(0,1fr)}.ev-act{grid-column:1/-1;flex-direction:row;justify-content:flex-end}}
 .cal-day:hover{outline:2px solid var(--pink-soft)}
 .cal-day.future{opacity:.45;cursor:default}
 .rec-dot{width:12px;height:12px;border-radius:50%;background:#E0568A;animation:pulse 1s ease-in-out infinite;flex:none}
@@ -252,6 +262,7 @@ html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night but
     <button role="tab" aria-selected="true" data-tab="climb">Climb</button>
     <button role="tab" aria-selected="false" data-tab="journal">Journal</button>
     <button role="tab" aria-selected="false" data-tab="notes">Notes</button>
+    <button role="tab" aria-selected="false" data-tab="events">Events</button>
     <button role="tab" aria-selected="false" data-tab="history">History</button>
   </nav>
   <div class="tools"><span class="sync" id="sync">Loading</span><button id="authBtn" hidden>Sign in</button><button class="ghost" id="nightBtn" aria-label="Night mode" title="Night mode">🌙</button><button class="ghost" id="themeBtn" aria-label="Change theme" title="Theme">🎨</button><button class="ghost" id="muteBtn" aria-label="Sound on">🔊</button></div>
@@ -320,6 +331,16 @@ html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night but
       </div>
       <div class="sec-head"><h2>My notes</h2><input id="noteSearch" type="search" placeholder="Search keywords..." aria-label="Search notes" style="width:min(280px,100%)"></div>
       <div id="notes"></div>
+    </section>
+
+    <section id="tab-events" hidden>
+      <div class="sec-head"><h2>Minneapolis events</h2><button id="evReload">↻ Refresh</button></div>
+      <p class="count" id="evMeta" style="margin:-4px 4px 10px"></p>
+      <div class="row" id="evFilters" style="margin-bottom:6px">
+        <button class="chip on" data-evf="all">All</button><button class="chip" data-evf="concert">🎤 Concerts</button><button class="chip" data-evf="sports">🏟️ Sports</button><button class="chip" data-evf="climbing">🧗 Climbing</button><button class="chip" data-evf="fun">🎉 Fun</button><button class="chip" data-evf="saved">💗 Saved</button>
+      </div>
+      <div id="events"></div>
+      <p class="count" style="margin:16px 4px">Want newer events? Ask Claude to "update events" and a fresh list will show up here. Always double-check dates and tickets on the event's page.</p>
     </section>
 
     <section id="tab-history" hidden>
@@ -937,6 +958,29 @@ function applyTheme(k){applyThemeDay(k);const de=document.documentElement;de.cla
   for(const x in v)st.setProperty(x,v[x])}
 function openTheme(){const cur=getState().theme||"monet";openModal(`<h2>🎨 Theme</h2><p class="count" style="margin-bottom:12px">Pick a color for your whole wall</p><div class="themes">${Object.entries(THEMES).map(([k,t])=>`<button class="theme-card${k===cur?" on":""}" data-themepick="${k}"><span class="theme-sw" style="background:linear-gradient(135deg,${t.g[0]},${t.g[2]})"><i style="background:linear-gradient(135deg,${t.b[0]},${t.b[1]})"></i><i style="background:${t.as}"></i><i style="background:${t.ink}"></i></span>${t.name}</button>`).join("")}</div>`)}
 
+/* ---------- events ---------- */
+const EV={data:null,filter:"all",loading:false,err:false};
+const EV_CAT={concert:"🎤 Concert",sports:"🏟️ Sports",climbing:"🧗 Climbing",fun:"🎉 Fun"};
+async function loadEvents(){if(EV.loading)return;EV.loading=true;EV.err=false;renderEvents();try{const r=await fetch("events.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);EV.data=await r.json()}catch(e){EV.err=true}EV.loading=false;renderEvents()}
+function evKey(e){return e.d+"|"+e.t}
+function renderEvents(){const box=$("#events");if(!box)return;
+  document.querySelectorAll("#evFilters [data-evf]").forEach(b=>b.classList.toggle("on",b.dataset.evf===EV.filter));
+  if(!EV.data){$("#evMeta").textContent="";box.innerHTML=EV.err?`<p class="empty">Couldn't load events. Check your connection and tap Refresh.</p>`:EV.loading?`<p class="empty">Loading events…</p>`:"";return}
+  const today=ymd(new Date());const saved=getState().evSaved||{};
+  $("#evMeta").textContent=`Updated ${md(EV.data.updated)}, covering ${EV.data.range}`;
+  let list=(EV.data.events||[]).filter(e=>(e.end||e.d)>=today);
+  if(EV.filter==="saved")list=list.filter(e=>saved[evKey(e)]);else if(EV.filter!=="all")list=list.filter(e=>e.c===EV.filter);
+  list.sort((a,b)=>a.d.localeCompare(b.d));
+  if(!list.length){box.innerHTML=`<p class="empty">${EV.filter==="saved"?"Tap the 🤍 on any event to save it here.":"Nothing coming up in this category right now."}</p>`;return}
+  let html="",lastM="";
+  for(const e of list){const dt=parseYmd(e.d<today&&e.end?today:e.d);const mKey=e.d.slice(0,7);
+    if(mKey!==lastM){lastM=mKey;html+=`<div class="ev-month">${parseYmd(e.d).toLocaleDateString(undefined,{month:"long",year:"numeric"})}</div>`}
+    const k=evKey(e),on=!!saved[k];
+    const range=e.end?`${md(e.d)} to ${md(e.end)}`:"";
+    html+=`<article class="ev panel"><div class="ev-date"><span>${dt.toLocaleDateString(undefined,{month:"short"})}</span><b>${dt.getDate()}</b><span>${dt.toLocaleDateString(undefined,{weekday:"short"})}</span></div><div><div class="ev-title">${esc(e.t)}</div><div class="count">${esc(e.v)}${e.time?`, ${esc(e.time)}`:""}</div><div class="row" style="margin-top:4px"><span class="pill">${EV_CAT[e.c]||esc(e.c)}</span>${range?`<span class="pill">${range}</span>`:""}</div>${e.note?`<p class="ev-note">${esc(e.note)}</p>`:""}</div><div class="ev-act"><button class="ghost" data-evsave="${esc(k)}" aria-label="${on?"Unsave":"Save"} ${esc(e.t)}" title="${on?"Saved":"Save"}">${on?"💗":"🤍"}</button>${e.url?`<a class="btn chip" href="${esc(e.url)}" target="_blank" rel="noopener">Info ↗</a>`:""}</div></article>`}
+  box.innerHTML=html;
+}
+
 /* ---------- record & summarize ---------- */
 const REC={mr:null,chunks:[],start:0,timer:null,blob:null,mime:"",event:"",dur:0,busy:false};
 function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return"";for(const m of["audio/webm;codecs=opus","audio/mp4","audio/ogg;codecs=opus","audio/webm"])if(MediaRecorder.isTypeSupported(m))return m;return""}
@@ -1041,7 +1085,7 @@ let rq=false;
 function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
   const C=compute();mood.sleepy=C.lastLogTs>0&&Date.now()-C.lastLogTs>48*3600e3;
-  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);const sn=getState().night;if(sn!==undefined&&!!sn!==NIGHT_ON){NIGHT_ON=!!sn;UI.theme=null;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}}$("#nightBtn").textContent=NIGHT_ON?"☀️":"🌙";const th=getState().theme||"monet";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
+  renderHero(C);renderBrain(C);renderMood();renderRows(C);renderLists();renderPosts(C);renderCal();renderNotes();renderHistory(C);renderEvents();const sn=getState().night;if(sn!==undefined&&!!sn!==NIGHT_ON){NIGHT_ON=!!sn;UI.theme=null;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}}$("#nightBtn").textContent=NIGHT_ON?"☀️":"🌙";const th=getState().theme||"monet";if(th!==UI.theme){UI.theme=th;applyTheme(th);try{localStorage.setItem("jinny-theme",th)}catch(e){}}const os=JSON.stringify(getState().outfit||{});if(os!==UI.outfitSig){UI.outfitSig=os;if($("#climber").innerHTML)$("#climber").innerHTML=climberMarkup()}renderWall(C);syncLabel();renderComposer();
   $("#muteBtn").textContent=getState().mute?"🔇":"🔊";
   if(store.ready)checkLevel(C);
 }
@@ -1062,7 +1106,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button,[data-overlay]");if(!b)return;
   if(b.matches("[data-overlay]")){if(e.target===b)closeModal();return}
   const d=b.dataset;
-  if(d.tab){document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));["climb","journal","notes","history"].forEach(t=>$("#tab-"+t).hidden=t!==d.tab);return}
+  if(d.tab){document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));["climb","journal","notes","events","history"].forEach(t=>$("#tab-"+t).hidden=t!==d.tab);if(d.tab==="events"&&!EV.data)loadEvents();return}
   if(d.add){const k=d.add;const extra={};
     if(k==="research"){const tp=$("#in-topic").value.trim();if(tp)extra.topic=tp}
     if(k==="sports")extra.sport=UI.sport;
@@ -1110,6 +1154,9 @@ document.addEventListener("click",e=>{
   if(d.delnote){openModal(`<h2>Delete this idea?</h2><div class="row" style="justify-content:flex-end;margin-top:12px"><button data-close>Keep it</button><button class="primary" data-confirmnote="${d.delnote}">Delete</button></div>`);return}
   if(d.confirmnote){deleteDoc(d.confirmnote);closeModal();toast("Idea deleted");return}
   if(b.id==="shareBtn"){const C=compute();shareModal(C,`Climbing ${gradeInfo(C.grade).label}`,"",false);return}
+  if(d.evf){EV.filter=d.evf;renderEvents();return}
+  if(d.evsave){const s=Object.assign({},getState().evSaved||{});if(s[d.evsave])delete s[d.evsave];else s[d.evsave]=true;updateState({evSaved:s});Sound.pop();renderEvents();return}
+  if(b.id==="evReload")return loadEvents();
   if(b.id==="themeBtn")return openTheme();
   if(b.id==="nightBtn"){NIGHT_ON=!NIGHT_ON;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}applyTheme(getState().theme||"monet");UI.theme=getState().theme||"monet";updateState({night:NIGHT_ON});Sound.pop();return}
   if(d.themepick){applyTheme(d.themepick);UI.theme=d.themepick;try{localStorage.setItem("jinny-theme",d.themepick)}catch(e){}updateState({theme:d.themepick});Sound.pop();openTheme();return}
