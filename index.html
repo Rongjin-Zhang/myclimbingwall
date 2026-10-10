@@ -334,11 +334,12 @@ html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night but
     </section>
 
     <section id="tab-events" hidden>
-      <div class="sec-head"><h2>Minneapolis events</h2><button id="evReload">↻ Refresh</button></div>
+      <div class="sec-head"><h2>Minneapolis events</h2><div class="row"><button id="evReload">↻ Refresh</button><button class="primary" id="evAI">✨ Find new events</button></div></div>
       <p class="count" id="evMeta" style="margin:-4px 4px 10px"></p>
       <div class="row" id="evFilters" style="margin-bottom:6px">
-        <button class="chip on" data-evf="all">All</button><button class="chip" data-evf="concert">🎤 Concerts</button><button class="chip" data-evf="sports">🏟️ Sports</button><button class="chip" data-evf="climbing">🧗 Climbing</button><button class="chip" data-evf="fun">🎉 Fun</button><button class="chip" data-evf="saved">💗 Saved</button>
+        <button class="chip on" data-evf="all">All</button><button class="chip" data-evf="concert">🎤 Concerts</button><button class="chip" data-evf="sports">🏟️ Sports</button><button class="chip" data-evf="fun">🎉 Fun</button><button class="chip" data-evf="saved">💗 Saved</button>
       </div>
+      <div id="evSuggest" style="margin:8px 0" hidden></div>
       <div id="events"></div>
       <p class="count" style="margin:16px 4px">Want newer events? Ask Claude to "update events" and a fresh list will show up here. Always double-check dates and tickets on the event's page.</p>
     </section>
@@ -963,7 +964,50 @@ const EV={data:null,filter:"all",loading:false,err:false};
 const EV_CAT={concert:"🎤 Concert",sports:"🏟️ Sports",climbing:"🧗 Climbing",fun:"🎉 Fun"};
 async function loadEvents(){if(EV.loading)return;EV.loading=true;EV.err=false;renderEvents();try{const r=await fetch("events.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);EV.data=await r.json()}catch(e){EV.err=true}EV.loading=false;renderEvents()}
 function evKey(e){return e.d+"|"+e.t}
+function catOf(e){return e.c==="climbing"?"sports":e.c}
+function evNorm(e){return e.d+"|"+String(e.t||"").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,14)}
 function renderEvents(){const box=$("#events");if(!box)return;
+  document.querySelectorAll("#evFilters [data-evf]").forEach(b=>b.classList.toggle("on",b.dataset.evf===EV.filter));
+  const ai=getDoc("evai");const aiList=(ai&&ai.events)||[];
+  renderSuggest(ai);
+  if(!EV.data&&!aiList.length){$("#evMeta").textContent="";box.innerHTML=EV.err?`<p class="empty">Couldn't load events. Check your connection and tap Refresh.</p>`:EV.loading?`<p class="empty">Loading events…</p>`:"";return}
+  const today=ymd(new Date());const saved=getState().evSaved||{};
+  const base=(EV.data&&EV.data.events)||[];const seen=new Set(base.map(evNorm));
+  const all=[...base,...aiList.filter(e=>!seen.has(evNorm(e))).map(e=>Object.assign({},e,{ai:true}))];
+  $("#evMeta").textContent=[EV.data?`Updated ${md(EV.data.updated)} by Claude`:"",ai?`AI search ${md(ai.updated)}`:""].filter(Boolean).join(", plus ");
+  let list=all.filter(e=>(e.end||e.d)>=today);
+  if(EV.filter==="saved")list=list.filter(e=>saved[evKey(e)]);else if(EV.filter!=="all")list=list.filter(e=>catOf(e)===EV.filter);
+  list.sort((a,b)=>a.d.localeCompare(b.d));
+  if(!list.length){box.innerHTML=`<p class="empty">${EV.filter==="saved"?"Tap the 🤍 on any event to save it here.":"Nothing coming up in this category right now."}</p>`;return}
+  let html="",lastM="";
+  for(const e of list){const dt=parseYmd(e.d<today&&e.end?today:e.d);const mKey=e.d.slice(0,7);
+    if(mKey!==lastM){lastM=mKey;html+=`<div class="ev-month">${parseYmd(e.d).toLocaleDateString(undefined,{month:"long",year:"numeric"})}</div>`}
+    const k=evKey(e),on=!!saved[k];const range=e.end?`${md(e.d)} to ${md(e.end)}`:"";
+    html+=`<article class="ev panel"><div class="ev-date"><span>${dt.toLocaleDateString(undefined,{month:"short"})}</span><b>${dt.getDate()}</b><span>${dt.toLocaleDateString(undefined,{weekday:"short"})}</span></div><div><div class="ev-title">${esc(e.t)}</div><div class="count">${esc(e.v)}${e.time?`, ${esc(e.time)}`:""}</div><div class="row" style="margin-top:4px"><span class="pill">${EV_CAT[e.c]||esc(e.c)}</span>${range?`<span class="pill">${range}</span>`:""}${e.ai?`<span class="pill">✨ AI found</span>`:""}</div>${e.note?`<p class="ev-note">${esc(e.note)}</p>`:""}</div><div class="ev-act"><button class="ghost" data-evsave="${esc(k)}" aria-label="${on?"Unsave":"Save"} ${esc(e.t)}" title="${on?"Saved":"Save"}">${on?"💗":"🤍"}</button>${e.url?`<a class="btn chip" href="${esc(e.url)}" target="_blank" rel="noopener">Info ↗</a>`:""}</div></article>`}
+  box.innerHTML=html;
+}
+function renderSuggest(ai){const host=$("#evSuggest");if(!host)return;const html=ai&&ai.suggest;if(!html){host.hidden=true;return}host.hidden=false;if(host.dataset.sig===String(ai.updated)+html.length)return;host.dataset.sig=String(ai.updated)+html.length;const root=host.shadowRoot||host.attachShadow({mode:"open"});root.innerHTML=html}
+async function getSearchModel(name){await getModel(name);return FB.ai.m.getGenerativeModel(FB.ai.inst,{model:name,tools:[{googleSearch:{}}]})}
+async function findEventsAI(){
+  const btn=$("#evAI");if(btn.disabled)return;btn.disabled=true;btn.textContent="✨ Searching…";
+  const today=ymd(new Date());const end=addDays(today,61);
+  const prompt=`Today is ${today}. Use Google Search to find upcoming events in Minneapolis and St. Paul, Minnesota, happening between ${today} and ${end}.
+Look for: concerts at First Avenue, The Fillmore Minneapolis, The Armory, Target Center, Palace Theatre, Varsity Theater, the Orpheum and other notable venues; home games of the Timberwolves, Wild, Vikings, Minnesota United, Minnesota Frost and the Gophers (no baseball); climbing competitions and climbing events; and fun seasonal activities, festivals and markets.
+Only include events that appear in your search results. Never invent events, dates, times or links.
+Reply with only a JSON array of at most 40 items, no other text. Each item: {"d":"YYYY-MM-DD","end":"YYYY-MM-DD (only for multi-day events)","t":"event name","v":"venue","time":"like 7:00 PM (only if known)","c":"concert or sports or climbing or fun","note":"short note (optional)","url":"event or ticket page URL from the search results (optional)"}`;
+  try{let res=null,err=null;
+    for(const name of AI_MODELS){try{const model=await getSearchModel(name);res=await model.generateContent(prompt);break}catch(e){err=e;if(e&&(e.code==="no-app"||e.code==="no-appcheck"))break;if(!/not.?found|404|unsupported|not supported/i.test(String(e&&e.message)))break}}
+    if(!res)throw err;
+    const txt=res.response.text().replace(/```json|```/g,"");const m=txt.match(/\[[\s\S]*\]/);if(!m)throw new Error("no json");
+    const raw=JSON.parse(m[0]);const okC=new Set(["concert","sports","climbing","fun"]);const s=v=>typeof v==="string"?v.trim().slice(0,160):"";
+    const events=(Array.isArray(raw)?raw:[]).map(e=>({d:s(e.d),end:s(e.end),t:s(e.t),v:s(e.v),time:s(e.time),c:okC.has(s(e.c))?s(e.c):"fun",note:s(e.note),url:/^https:\/\//.test(s(e.url))?s(e.url):""})).filter(e=>/^\d{4}-\d{2}-\d{2}$/.test(e.d)&&e.t&&e.d>=today&&e.d<=end).map(e=>{const o={};for(const k in e)if(e[k])o[k]=e[k];if(o.end&&!/^\d{4}-\d{2}-\d{2}$/.test(o.end))delete o.end;return o}).slice(0,40);
+    const cand=res.response.candidates&&res.response.candidates[0];const suggest=cand&&cand.groundingMetadata&&cand.groundingMetadata.searchEntryPoint&&cand.groundingMetadata.searchEntryPoint.renderedContent||"";
+    if(!events.length)throw new Error("empty");
+    writeDoc("evai",{kind:"evai",updated:today,events,suggest});Sound.cheer();toast(`Found ${events.length} events ✨`);
+  }catch(e){console.warn(e);const c=e&&e.code;toast(c==="no-appcheck"?"Needs the App Check setup first.":c==="no-app"?"Still loading, try again in a moment.":"Couldn't find new events right now. Try again later.")}
+  btn.disabled=false;btn.textContent="✨ Find new events";
+}
+function renderEventsOld(){const box=$("#events");if(!box)return;
   document.querySelectorAll("#evFilters [data-evf]").forEach(b=>b.classList.toggle("on",b.dataset.evf===EV.filter));
   if(!EV.data){$("#evMeta").textContent="";box.innerHTML=EV.err?`<p class="empty">Couldn't load events. Check your connection and tap Refresh.</p>`:EV.loading?`<p class="empty">Loading events…</p>`:"";return}
   const today=ymd(new Date());const saved=getState().evSaved||{};
@@ -1157,6 +1201,7 @@ document.addEventListener("click",e=>{
   if(d.evf){EV.filter=d.evf;renderEvents();return}
   if(d.evsave){const s=Object.assign({},getState().evSaved||{});if(s[d.evsave])delete s[d.evsave];else s[d.evsave]=true;updateState({evSaved:s});Sound.pop();renderEvents();return}
   if(b.id==="evReload")return loadEvents();
+  if(b.id==="evAI")return findEventsAI();
   if(b.id==="themeBtn")return openTheme();
   if(b.id==="nightBtn"){NIGHT_ON=!NIGHT_ON;try{localStorage.setItem("jinny-night",NIGHT_ON?"1":"0")}catch(e){}applyTheme(getState().theme||"monet");UI.theme=getState().theme||"monet";updateState({night:NIGHT_ON});Sound.pop();return}
   if(d.themepick){applyTheme(d.themepick);UI.theme=d.themepick;try{localStorage.setItem("jinny-theme",d.themepick)}catch(e){}updateState({theme:d.themepick});Sound.pop();openTheme();return}
