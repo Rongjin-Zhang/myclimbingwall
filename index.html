@@ -198,6 +198,10 @@ mark{background:var(--pink-soft);color:inherit;border-radius:4px;padding:0 2px}
 #clInner{transform-origin:0 -10px}
 #clInner.shake{animation:shake .5s ease-in-out 2}
 #clInner.hop{animation:hop .45s ease-in-out 4}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
+#clInner.spin{animation:spin .8s ease-in-out}
+#climber{cursor:pointer}
 .zz{animation:zz 2.4s ease-in-out infinite}.zz2{animation-delay:1.2s}
 .spark{animation:twinkle 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 .brain-full #brainAll{animation:pulse 1.6s ease-in-out infinite}
@@ -652,8 +656,11 @@ function applyPose(){
   const name=Date.now()<mood.cheerUntil?"cheer":sleepy?"hang":base;const p=POSES[name];
   for(const[l,e]of[["la","lah"],["ra","rah"],["ll","llf"],["rl","rlf"]]){const L=document.getElementById(l),E=document.getElementById(e);L.setAttribute("x2",p[l][0]);L.setAttribute("y2",p[l][1]);E.setAttribute("cx",p[l][0]);E.setAttribute("cy",p[l][1])}
   $("#eyesOpen").style.display=sleepy?"none":"";$("#eyesShut").style.display=sleepy?"":"none";$("#zzz").style.display=sleepy?"":"none";
-  $("#mouth").setAttribute("d",name==="cheer"?"M-3 -32 Q0 -27.5 3 -32 Z":"M-2.5 -31.5 Q0 -29.5 2.5 -31.5");
-  $("#mouth").setAttribute("fill",name==="cheer"?"#B83E6C":"none");
+  const tm=getDoc("m-"+ymd(new Date()));const mv=tm?tm.m:4;
+  const MOUTH={5:"M-3 -32 Q0 -27.5 3 -32 Z",4:"M-2.5 -31.5 Q0 -29.5 2.5 -31.5",3:"M-2.2 -30.8 L2.2 -30.8",2:"M-2.3 -30.2 Q0 -31.6 2.3 -30.2",1:"M-2.6 -29.6 Q0 -32.2 2.6 -29.6"};
+  const mk=name==="cheer"?5:mv;$("#mouth").setAttribute("d",MOUTH[mk]||MOUTH[4]);$("#mouth").setAttribute("fill",mk===5?"#B83E6C":"none");
+  if(!$("#tear")&&$("#head")){const t=document.createElementNS("http://www.w3.org/2000/svg","path");t.id="tear";t.setAttribute("d","M4.2 -33.2 Q5.4 -30.6 4.2 -29.2 Q3 -30.6 4.2 -33.2Z");t.setAttribute("fill","#9ACBEF");$("#head").appendChild(t)}
+  if($("#tear"))$("#tear").style.display=(mv===1&&name!=="cheer"&&!sleepy)?"":"none";
   $("#head").setAttribute("transform",sleepy?"rotate(14 0 -30)":"");
 }
 const CL_SCALE=1.25;
@@ -1227,6 +1234,19 @@ document.addEventListener("keydown",e=>{
 });
 $("#fileInput").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";uploadFiles(f)});
 $("#noteSearch").addEventListener("input",()=>renderNotes());
+function floatFx(txt){const C=compute();const{x,y}=climberXY(C.level+C.inLevel/XPL);const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.textContent=txt;t.setAttribute("x",x);t.setAttribute("y",y-72);t.setAttribute("font-size","15");t.setAttribute("text-anchor","middle");t.style.animation="floatUp 1.4s ease-out forwards";$("#fxLayer").appendChild(t);setTimeout(()=>t.remove(),1500)}
+function waveArm(){let n=0;const L=$("#ra"),H=$("#rah");if(!L)return;const st=setInterval(()=>{const p=n%2===0?[16,-54]:[22,-45];L.setAttribute("x2",p[0]);L.setAttribute("y2",p[1]);H.setAttribute("cx",p[0]);H.setAttribute("cy",p[1]);if(++n>5){clearInterval(st);applyPose()}},220)}
+let reactBusy=false;
+function reactClimber(){if(reactBusy)return;reactBusy=true;setTimeout(()=>reactBusy=false,1400);Sound.get();
+  const i=$("#clInner");if(!i)return;const tm=getDoc("m-"+ymd(new Date()));const mv=tm?tm.m:4;
+  floatFx(mv<=2?"🫂":["💗","✨","🌷","💖"][Math.floor(Math.random()*4)]);
+  const r=Math.floor(Math.random()*4);
+  if(r===0){cheer();Sound.cheer()}
+  else if(r===1){i.classList.remove("spin");void i.getBoundingClientRect();i.classList.add("spin");Sound.pop()}
+  else if(r===2){waveArm();Sound.pop()}
+  else{i.classList.remove("hop");void i.getBoundingClientRect();i.classList.add("hop");Sound.pop()}
+}
+$("#climber").addEventListener("click",reactClimber);
 window.addEventListener("beforeunload",e=>{if(REC.mr||REC.busy||REC.blob){e.preventDefault();e.returnValue=""}});
 $("#jDate").addEventListener("change",()=>{if($("#jDate").value>ymd(new Date()))$("#jDate").value=ymd(new Date());syncDateHint()});
 syncDateHint();
