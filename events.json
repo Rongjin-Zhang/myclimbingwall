@@ -3,12 +3,12 @@
   "range": "Oct 10, 2026 to Aug 22, 2027",
   "events": [
     {
-      "d": "2026-09-30",
-      "end": "2026-10-25",
-      "t": "On the Razzle!",
-      "v": "Park Square Theatre, St. Paul",
+      "d": "2026-09-12",
+      "end": "2026-10-11",
+      "t": "Waiting for Godot",
+      "v": "Guthrie Theater",
       "c": "theater",
-      "url": "https://www.parksquaretheatre.org/"
+      "url": "https://www.guthrietheater.org/whats-on/waiting-for-godot/"
     },
     {
       "d": "2026-10-10",
@@ -155,6 +155,13 @@
       "url": "https://www.jambase.com/venue/first-avenue"
     },
     {
+      "d": "2026-10-22",
+      "t": "Haydn and Liszt",
+      "v": "Orchestra Hall, Minneapolis",
+      "c": "orchestra",
+      "url": "https://www.ticketmaster.com/venue/49828"
+    },
+    {
       "d": "2026-10-23",
       "t": "Sylvan Esso",
       "v": "First Avenue",
@@ -178,6 +185,20 @@
       "c": "climbing",
       "note": "Pro super finals with top world-ranked climbers and a $35K purse. Spectator tickets available.",
       "url": "https://boulderingproject.com/boulderfest/"
+    },
+    {
+      "d": "2026-10-23",
+      "t": "Haydn and Liszt",
+      "v": "Orchestra Hall, Minneapolis",
+      "c": "orchestra",
+      "url": "https://www.ticketmaster.com/venue/49828"
+    },
+    {
+      "d": "2026-10-24",
+      "t": "Ben Folds with Minnesota Orchestra",
+      "v": "Orchestra Hall, Minneapolis",
+      "c": "orchestra",
+      "url": "https://www.ticketmaster.com/venue/49828"
     },
     {
       "d": "2026-10-25",
@@ -295,6 +316,14 @@
       "url": "https://www.axs.com/venues/101260/target-center-minneapolis-tickets"
     },
     {
+      "d": "2026-10-30",
+      "end": "2026-10-31",
+      "t": "Vertigo in Concert",
+      "v": "Orchestra Hall, Minneapolis",
+      "c": "orchestra",
+      "url": "https://www.ticketmaster.com/venue/49828"
+    },
+    {
       "d": "2026-10-31",
       "t": "Periphery",
       "v": "The Fillmore",
@@ -307,6 +336,14 @@
       "v": "Grand Casino Arena, St. Paul",
       "c": "concert",
       "url": "https://onestowatch.com/live/best-concerts-minneapolis-october/"
+    },
+    {
+      "d": "2026-10-31",
+      "end": "2026-11-08",
+      "t": "The Many Deaths of Laila Starr",
+      "v": "Ordway Music Theater, St. Paul",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
     },
     {
       "d": "2026-11-01",
@@ -353,6 +390,14 @@
       "time": "6:00 PM",
       "c": "concert",
       "url": "https://www.fillmoreminneapolis.com/"
+    },
+    {
+      "d": "2026-11-05",
+      "end": "2026-11-07",
+      "t": "Søndergård, Parker and Sibelius",
+      "v": "Orchestra Hall, Minneapolis",
+      "c": "orchestra",
+      "url": "https://www.ticketmaster.com/venue/49828"
     },
     {
       "d": "2026-11-06",
@@ -543,14 +588,6 @@
       "url": "https://www.fillmoreminneapolis.com/"
     },
     {
-      "d": "2026-11-21",
-      "end": "2026-12-20",
-      "t": "Beyond the Rainbow",
-      "v": "History Theatre, St. Paul",
-      "c": "theater",
-      "url": "https://www.historytheatre.com/2026-27-season/"
-    },
-    {
       "d": "2026-11-22",
       "t": "Sabaton with Pop Evil",
       "v": "The Armory",
@@ -572,14 +609,6 @@
       "v": "Target Center",
       "c": "sports",
       "url": "https://www.ticketmaster.com/minnesota-timberwolves-tickets/artist/805971?home_away=home"
-    },
-    {
-      "d": "2026-11-24",
-      "end": "2026-12-27",
-      "t": "All Is Calm: The Christmas Truce of 1914",
-      "v": "Theater Latté Da",
-      "c": "theater",
-      "url": "https://www.latteda.org/"
     },
     {
       "d": "2026-11-25",
@@ -672,6 +701,14 @@
       "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
+      "d": "2026-12-19",
+      "end": "2026-12-20",
+      "t": "A Minnesota Nutcracker",
+      "v": "Northrop, Minneapolis",
+      "c": "ballet",
+      "url": "https://www.northrop.umn.edu/events/twin-cities-ballet-minnesota-nutcracker-2026"
+    },
+    {
       "d": "2026-12-29",
       "end": "2027-01-03",
       "t": "Buena Vista Social Club",
@@ -686,6 +723,21 @@
       "v": "Ordway Music Theater, St. Paul",
       "c": "broadway",
       "url": "https://ordway.org/events/season"
+    },
+    {
+      "d": "2027-01-08",
+      "end": "2027-01-09",
+      "t": "My Name Is Florence: Encore Concert",
+      "v": "Ordway Concert Hall, St. Paul",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
+    },
+    {
+      "d": "2027-01-16",
+      "t": "Argento in Song: Miss Manners & Casa Guidi",
+      "v": "Luminary Arts Center, Minneapolis",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
     },
     {
       "d": "2027-01-23",
@@ -705,19 +757,10 @@
     },
     {
       "d": "2027-01-30",
-      "end": "2027-02-21",
-      "t": "Toni Stone",
-      "v": "History Theatre, St. Paul",
-      "c": "theater",
-      "url": "https://www.historytheatre.com/2026-27-season/"
-    },
-    {
-      "d": "2027-02-03",
-      "end": "2027-02-28",
-      "t": "Lizard Boy",
-      "v": "Theater Latté Da",
-      "c": "theater",
-      "url": "https://www.latteda.org/"
+      "t": "Limón Dance Company",
+      "v": "Northrop, Minneapolis",
+      "c": "ballet",
+      "url": "https://www.northrop.umn.edu/2026-27-northrop-season"
     },
     {
       "d": "2027-02-09",
@@ -726,6 +769,13 @@
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
+    },
+    {
+      "d": "2027-02-13",
+      "t": "Under Midwestern Skies",
+      "v": "Luminary Arts Center, Minneapolis",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
     },
     {
       "d": "2027-02-19",
@@ -752,20 +802,35 @@
       "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
+      "d": "2027-03-13",
+      "end": "2027-03-21",
+      "t": "Ariodante",
+      "v": "Ordway Music Theater, St. Paul",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
+    },
+    {
+      "d": "2027-03-20",
+      "end": "2027-03-21",
+      "t": "Complexions Contemporary Ballet",
+      "v": "Northrop, Minneapolis",
+      "c": "ballet",
+      "url": "https://www.northrop.umn.edu/events/complexions-contemporary-ballet-2027"
+    },
+    {
+      "d": "2027-03-27",
+      "t": "Canciones argentinas y mexicanas",
+      "v": "Luminary Arts Center, Minneapolis",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
+    },
+    {
       "d": "2027-03-30",
       "end": "2027-04-04",
       "t": "The Who's Tommy",
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
-    },
-    {
-      "d": "2027-03-31",
-      "end": "2027-05-02",
-      "t": "She's Come Undone",
-      "v": "Theater Latté Da",
-      "c": "theater",
-      "url": "https://www.latteda.org/"
     },
     {
       "d": "2027-04-03",
@@ -776,12 +841,11 @@
       "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
-      "d": "2027-04-03",
-      "end": "2027-04-25",
-      "t": "Café au Lait: Nellie Francis Battles the Big, Bad Book of History",
-      "v": "History Theatre, St. Paul",
-      "c": "theater",
-      "url": "https://www.historytheatre.com/2026-27-season/"
+      "d": "2027-04-10",
+      "t": "The Art of the Chanteuse",
+      "v": "Luminary Arts Center, Minneapolis",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
     },
     {
       "d": "2027-04-20",
@@ -792,28 +856,20 @@
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
     },
     {
+      "d": "2027-05-08",
+      "end": "2027-05-16",
+      "t": "Falstaff",
+      "v": "Ordway Music Theater, St. Paul",
+      "c": "opera",
+      "url": "https://mnopera.org/season/2026-2027/"
+    },
+    {
       "d": "2027-05-15",
       "end": "2027-06-18",
       "t": "Eureka Day",
       "v": "Guthrie Theater",
       "c": "theater",
       "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
-    },
-    {
-      "d": "2027-05-22",
-      "end": "2027-06-13",
-      "t": "America's Very First Play! (And the Immediate Trial Thereafter)",
-      "v": "History Theatre, St. Paul",
-      "c": "theater",
-      "url": "https://www.historytheatre.com/2026-27-season/"
-    },
-    {
-      "d": "2027-06-02",
-      "end": "2027-07-11",
-      "t": "Spring Awakening",
-      "v": "Theater Latté Da",
-      "c": "theater",
-      "url": "https://www.latteda.org/"
     },
     {
       "d": "2027-06-15",
@@ -846,14 +902,6 @@
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
-    },
-    {
-      "d": "2027-07-24",
-      "end": "2027-08-15",
-      "t": "Love on a Stick! The State Fair Musical",
-      "v": "History Theatre, St. Paul",
-      "c": "theater",
-      "url": "https://www.historytheatre.com/2026-27-season/"
     }
   ]
 }
