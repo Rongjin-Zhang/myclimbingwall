@@ -1,7 +1,15 @@
 {
   "updated": "2026-10-15",
-  "range": "Oct 10, 2026 to Jul 18, 2027",
+  "range": "Oct 10, 2026 to Aug 22, 2027",
   "events": [
+    {
+      "d": "2026-09-30",
+      "end": "2026-10-25",
+      "t": "On the Razzle!",
+      "v": "Park Square Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.parksquaretheatre.org/"
+    },
     {
       "d": "2026-10-10",
       "t": "Shaboozey",
@@ -20,6 +28,14 @@
       "url": "https://www.minneapolis.org/calendar/holidays/halloween/pop-up-bars/"
     },
     {
+      "d": "2026-10-10",
+      "end": "2026-11-08",
+      "t": "Kunene and the King",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
+    },
+    {
       "d": "2026-10-12",
       "t": "Wild vs. Golden Knights",
       "v": "Grand Casino Arena, St. Paul",
@@ -27,6 +43,14 @@
       "c": "sports",
       "note": "NHL hockey",
       "url": "https://kstp.com/wp-content/uploads/2026/07/Minnesota-Wild-2026-27-Schedule.pdf"
+    },
+    {
+      "d": "2026-10-13",
+      "end": "2026-11-22",
+      "t": "Twelve Kinds of Ice",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
     },
     {
       "d": "2026-10-14",
@@ -339,6 +363,14 @@
       "url": "https://www.fillmoreminneapolis.com/"
     },
     {
+      "d": "2026-11-03",
+      "end": "2027-01-03",
+      "t": "Dr. Seuss's How the Grinch Stole Christmas!",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
       "d": "2026-11-06",
       "t": "Wild vs. Sharks",
       "v": "Grand Casino Arena, St. Paul",
@@ -419,6 +451,14 @@
       "v": "Target Center",
       "c": "concert",
       "url": "https://www.concertarchives.org/venues/target-center"
+    },
+    {
+      "d": "2026-11-11",
+      "end": "2026-12-27",
+      "t": "A Christmas Carol",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
       "d": "2026-11-12",
@@ -519,6 +559,14 @@
       "url": "https://www.fillmoreminneapolis.com/"
     },
     {
+      "d": "2026-11-21",
+      "end": "2026-12-20",
+      "t": "Beyond the Rainbow",
+      "v": "History Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.historytheatre.com/2026-27-season/"
+    },
+    {
       "d": "2026-11-22",
       "t": "Sabaton with Pop Evil",
       "v": "The Armory",
@@ -540,6 +588,14 @@
       "v": "Target Center",
       "c": "sports",
       "url": "https://www.ticketmaster.com/minnesota-timberwolves-tickets/artist/805971?home_away=home"
+    },
+    {
+      "d": "2026-11-24",
+      "end": "2026-12-27",
+      "t": "All Is Calm: The Christmas Truce of 1914",
+      "v": "Theater Latté Da",
+      "c": "theater",
+      "url": "https://www.latteda.org/"
     },
     {
       "d": "2026-11-25",
@@ -624,6 +680,14 @@
       "url": "https://ordway.org/events/season"
     },
     {
+      "d": "2026-12-12",
+      "end": "2027-02-21",
+      "t": "And Then There Were None",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
+    },
+    {
       "d": "2026-12-29",
       "end": "2027-01-03",
       "t": "Buena Vista Social Club",
@@ -640,12 +704,52 @@
       "url": "https://ordway.org/events/season"
     },
     {
+      "d": "2027-01-12",
+      "end": "2027-02-07",
+      "t": "Chicka Chicka Boom Boom: The Musical",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
+      "d": "2027-01-22",
+      "end": "2027-01-31",
+      "t": "Havana Hop",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
+      "d": "2027-01-23",
+      "end": "2027-02-28",
+      "t": "Intimate Apparel",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
+    },
+    {
       "d": "2027-01-26",
       "end": "2027-01-31",
       "t": "Operation Mincemeat",
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
+    },
+    {
+      "d": "2027-01-30",
+      "end": "2027-02-21",
+      "t": "Toni Stone",
+      "v": "History Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.historytheatre.com/2026-27-season/"
+    },
+    {
+      "d": "2027-02-03",
+      "end": "2027-02-28",
+      "t": "Lizard Boy",
+      "v": "Theater Latté Da",
+      "c": "theater",
+      "url": "https://www.latteda.org/"
     },
     {
       "d": "2027-02-09",
@@ -664,12 +768,36 @@
       "url": "https://ordway.org/events/season"
     },
     {
+      "d": "2027-02-23",
+      "end": "2027-04-04",
+      "t": "Princess Kay of the Milky Way",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
       "d": "2027-03-09",
       "end": "2027-03-14",
       "t": "The Outsiders",
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
+    },
+    {
+      "d": "2027-03-12",
+      "end": "2027-03-21",
+      "t": "Mr. Messado's School of Magic",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
+      "d": "2027-03-13",
+      "end": "2027-04-25",
+      "t": "John Proctor Is the Villain",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
       "d": "2027-03-30",
@@ -680,6 +808,30 @@
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
     },
     {
+      "d": "2027-03-31",
+      "end": "2027-05-02",
+      "t": "She's Come Undone",
+      "v": "Theater Latté Da",
+      "c": "theater",
+      "url": "https://www.latteda.org/"
+    },
+    {
+      "d": "2027-04-03",
+      "end": "2027-05-23",
+      "t": "A Tale of Two Cities",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
+    },
+    {
+      "d": "2027-04-03",
+      "end": "2027-04-25",
+      "t": "Café au Lait: Nellie Francis Battles the Big, Bad Book of History",
+      "v": "History Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.historytheatre.com/2026-27-season/"
+    },
+    {
       "d": "2027-04-20",
       "end": "2027-05-22",
       "t": "Hamilton",
@@ -688,12 +840,60 @@
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
     },
     {
+      "d": "2027-05-04",
+      "end": "2027-06-27",
+      "t": "School of Rock",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
+      "d": "2027-05-14",
+      "end": "2027-05-23",
+      "t": "Joseph Kekuku and the Voice of the Steel Guitar",
+      "v": "Children's Theatre Company",
+      "c": "theater",
+      "url": "https://childrenstheatre.org/the-2026-2027-season/"
+    },
+    {
+      "d": "2027-05-15",
+      "end": "2027-06-18",
+      "t": "Eureka Day",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
+    },
+    {
+      "d": "2027-05-22",
+      "end": "2027-06-13",
+      "t": "America's Very First Play! (And the Immediate Trial Thereafter)",
+      "v": "History Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.historytheatre.com/2026-27-season/"
+    },
+    {
+      "d": "2027-06-02",
+      "end": "2027-07-11",
+      "t": "Spring Awakening",
+      "v": "Theater Latté Da",
+      "c": "theater",
+      "url": "https://www.latteda.org/"
+    },
+    {
       "d": "2027-06-15",
       "end": "2027-06-20",
       "t": "Waitress",
       "v": "Ordway Music Theater, St. Paul",
       "c": "broadway",
       "url": "https://ordway.org/events/season"
+    },
+    {
+      "d": "2027-06-19",
+      "end": "2027-08-22",
+      "t": "The Pirates of Penzance",
+      "v": "Guthrie Theater",
+      "c": "theater",
+      "url": "https://www.guthrietheater.org/seasons/2026-2027-season/"
     },
     {
       "d": "2027-06-25",
@@ -710,6 +910,14 @@
       "v": "Orpheum Theatre, Minneapolis",
       "c": "broadway",
       "url": "https://hennepinarts.org/2026-2027-broadway-subscriptions"
+    },
+    {
+      "d": "2027-07-24",
+      "end": "2027-08-15",
+      "t": "Love on a Stick! The State Fair Musical",
+      "v": "History Theatre, St. Paul",
+      "c": "theater",
+      "url": "https://www.historytheatre.com/2026-27-season/"
     }
   ]
 }
