@@ -341,7 +341,7 @@ html.night .chip.on,html.night .tabs button[aria-selected="true"],html.night but
       <div class="sec-head"><h2>Minneapolis events</h2><div class="row"><button id="evReload">↻ Refresh</button><button class="primary" id="evAI">✨ Find new events</button></div></div>
       <p class="count" id="evMeta" style="margin:-4px 4px 10px"></p>
       <div class="row" id="evFilters" style="margin-bottom:6px">
-        <button class="chip on" data-evf="all">All</button><button class="chip" data-evf="concert">🎤 Concerts</button><button class="chip" data-evf="sports">🏟️ Sports</button><button class="chip" data-evf="broadway">🎭 Broadway</button><button class="chip" data-evf="fun">🎉 Fun</button><button class="chip" data-evf="saved">💗 Saved</button>
+        <button class="chip on" data-evf="all">All</button><button class="chip" data-evf="concert">🎤 Concerts</button><button class="chip" data-evf="sports">🏟️ Sports</button><button class="chip" data-evf="broadway">🎭 Broadway</button><button class="chip" data-evf="theater">🎭 Theater</button><button class="chip" data-evf="fun">🎉 Fun</button><button class="chip" data-evf="saved">💗 Saved</button>
       </div>
       <div id="evSuggest" style="margin:8px 0" hidden></div>
       <div id="events"></div>
@@ -968,7 +968,7 @@ function openTheme(){const cur=getState().theme||"monet";openModal(`<h2>🎨 The
 
 /* ---------- events ---------- */
 const EV={data:null,filter:"all",loading:false,err:false};
-const EV_CAT={concert:"🎤 Concert",sports:"🏟️ Sports",climbing:"🧗 Climbing",broadway:"🎭 Broadway",fun:"🎉 Fun"};
+const EV_CAT={concert:"🎤 Concert",sports:"🏟️ Sports",climbing:"🧗 Climbing",broadway:"🎭 Broadway",theater:"🎭 Theater",fun:"🎉 Fun"};
 async function loadEvents(){if(EV.loading)return;EV.loading=true;EV.err=false;renderEvents();try{const r=await fetch("events.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);EV.data=await r.json()}catch(e){EV.err=true}EV.loading=false;renderEvents()}
 function evKey(e){return e.d+"|"+e.t}
 function catOf(e){return e.c==="climbing"?"sports":e.c}
@@ -999,14 +999,14 @@ async function findEventsAI(){
   const btn=$("#evAI");if(btn.disabled)return;btn.disabled=true;btn.textContent="✨ Searching…";
   const today=ymd(new Date());const end=addDays(today,61);
   const prompt=`Today is ${today}. Use Google Search to find upcoming events in Minneapolis and St. Paul, Minnesota, happening between ${today} and ${end}.
-Look for: Broadway musicals at the Orpheum Theatre and Ordway Music Theater; concerts at First Avenue, The Fillmore Minneapolis, The Armory, Target Center, Palace Theatre, Varsity Theater, the Orpheum and other notable venues; home games of the Timberwolves, Wild, Vikings, Minnesota United, Minnesota Frost and the Gophers (no baseball); climbing competitions and climbing events; and fun seasonal activities, festivals and markets.
+Look for: Broadway musicals at the Orpheum Theatre and Ordway Music Theater; plays and musicals at Guthrie Theater, Children’s Theatre Company, Theater Latté Da, History Theatre, Park Square Theatre and other Twin Cities stages; concerts at First Avenue, The Fillmore Minneapolis, The Armory, Target Center, Palace Theatre, Varsity Theater, the Orpheum and other notable venues; home games of the Timberwolves, Wild, Vikings, Minnesota United, Minnesota Frost and the Gophers (no baseball); climbing competitions and climbing events; and fun seasonal activities, festivals and markets.
 Only include events that appear in your search results. Never invent events, dates, times or links.
-Reply with only a JSON array of at most 40 items, no other text. Each item: {"d":"YYYY-MM-DD","end":"YYYY-MM-DD (only for multi-day events)","t":"event name","v":"venue","time":"like 7:00 PM (only if known)","c":"concert or sports or climbing or broadway or fun","note":"short note (optional)","url":"event or ticket page URL from the search results (optional)"}`;
+Reply with only a JSON array of at most 40 items, no other text. Each item: {"d":"YYYY-MM-DD","end":"YYYY-MM-DD (only for multi-day events)","t":"event name","v":"venue","time":"like 7:00 PM (only if known)","c":"concert or sports or climbing or broadway or theater or fun","note":"short note (optional)","url":"event or ticket page URL from the search results (optional)"}`;
   try{let res=null,err=null;
     for(const name of AI_MODELS){try{const model=await getSearchModel(name);res=await model.generateContent(prompt);break}catch(e){err=e;if(e&&(e.code==="no-app"||e.code==="no-appcheck"))break;if(!/not.?found|404|unsupported|not supported/i.test(String(e&&e.message)))break}}
     if(!res)throw err;
     const txt=res.response.text().replace(/```json|```/g,"");const m=txt.match(/\[[\s\S]*\]/);if(!m)throw new Error("no json");
-    const raw=JSON.parse(m[0]);const okC=new Set(["concert","sports","climbing","broadway","fun"]);const s=v=>typeof v==="string"?v.trim().slice(0,160):"";
+    const raw=JSON.parse(m[0]);const okC=new Set(["concert","sports","climbing","broadway","theater","fun"]);const s=v=>typeof v==="string"?v.trim().slice(0,160):"";
     const events=(Array.isArray(raw)?raw:[]).map(e=>({d:s(e.d),end:s(e.end),t:s(e.t),v:s(e.v),time:s(e.time),c:okC.has(s(e.c))?s(e.c):"fun",note:s(e.note),url:/^https:\/\//.test(s(e.url))?s(e.url):""})).filter(e=>/^\d{4}-\d{2}-\d{2}$/.test(e.d)&&e.t&&e.d>=today&&e.d<=end).map(e=>{const o={};for(const k in e)if(e[k])o[k]=e[k];if(o.end&&!/^\d{4}-\d{2}-\d{2}$/.test(o.end))delete o.end;return o}).slice(0,40);
     const cand=res.response.candidates&&res.response.candidates[0];const suggest=cand&&cand.groundingMetadata&&cand.groundingMetadata.searchEntryPoint&&cand.groundingMetadata.searchEntryPoint.renderedContent||"";
     if(!events.length)throw new Error("empty");
